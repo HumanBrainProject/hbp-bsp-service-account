@@ -1,4 +1,5 @@
 *.pyc
 
 service_account/module
-source/build
+docs/build
+docs/build/html
