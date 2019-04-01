@@ -1,0 +1,225 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Files &#8212; Service Account 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Quotas" href="../quotas/quotas.html" />
+    <link rel="prev" title="Job Delete/Cancel" href="../jobs/job_delete.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="files">
+<h1>Files<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h1>
+<p>Files operations on the HPC systems are performed through the <strong>/files</strong> endpoint.</p>
+<hr class="docutils" />
+<p>All the requests reported below must be appended to the service endpoint:</p>
+<p><strong>https://bspsa.cineca.it</strong></p>
+<p>The allowed HPC string values are:</p>
+<ul class="simple">
+<li>pizdaint</li>
+<li>nsg</li>
+</ul>
+<p>The allowed Project string values are:</p>
+<ul class="simple">
+<li>bsp_pizdaint_01</li>
+<li>bsp_nsg_01</li>
+</ul>
+<hr class="docutils" />
+<p>The APIs allow to get a list of files related to a specific job and to download
+them individually.</p>
+<p><strong>URL: /files/</strong><em>(string: hpc)</em><strong>/</strong><em>(string: project_name)</em><strong>/</strong><em>(string: job_id)</em><strong>/</strong><em>(optional string: file_id)</em><strong>/</strong></p>
+<p><strong>Required Headers:</strong></p>
+<blockquote>
+<div><ul>
+<li><p class="first">Authorization:</p>
+<blockquote>
+<div><div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Authorization</span><span class="p">:</span> <span class="n">Bearer</span> <span class="o">&lt;</span><span class="n">token</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p><strong>Example:</strong></p>
+<blockquote>
+<div><ul>
+<li><p class="first"><em>Get the file list of a completed job on NSG system</em></p>
+<blockquote>
+<div><p><strong>Example Request</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="o">/</span><span class="n">files</span><span class="o">/</span><span class="n">nsg</span><span class="o">/</span><span class="n">bsp_nsg_01</span><span class="o">/</span><span class="n">NGBW</span><span class="o">-</span><span class="n">JOB</span><span class="o">-</span><span class="n">NEURON75_TG</span><span class="o">-</span><span class="mf">018095E597064</span><span class="n">F9FBEC486ED29BD2138</span><span class="o">/</span>    <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Authorization</span><span class="p">:</span>              <span class="n">Bearer</span> <span class="n">Token</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>                    <span class="mi">200</span> <span class="n">OK</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span>               <span class="n">application</span><span class="o">/</span><span class="n">json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="sa">u</span><span class="s1">&#39;fileid&#39;</span><span class="p">:</span>          <span class="sa">u</span><span class="s1">&#39;29057&#39;</span><span class="p">,</span>
+        <span class="sa">u</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span>        <span class="sa">u</span><span class="s1">&#39;STDOUT&#39;</span><span class="p">,</span>
+        <span class="sa">u</span><span class="s1">&#39;length&#39;</span><span class="p">:</span>          <span class="sa">u</span><span class="s1">&#39;244144&#39;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="sa">u</span><span class="s1">&#39;fileid&#39;</span><span class="p">:</span>          <span class="sa">u</span><span class="s1">&#39;29059&#39;</span><span class="p">,</span>
+        <span class="sa">u</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span>        <span class="sa">u</span><span class="s1">&#39;STDERR&#39;</span><span class="p">,</span>
+        <span class="sa">u</span><span class="s1">&#39;length&#39;</span><span class="p">:</span>          <span class="sa">u</span><span class="s1">&#39;372&#39;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first"><em>Download a file of a completed job on NSG system</em></p>
+<blockquote>
+<div><p><strong>Example Request</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="o">/</span><span class="n">files</span><span class="o">/</span><span class="n">nsg</span><span class="o">/</span><span class="n">bsp_nsg_01</span><span class="o">/</span><span class="n">NGBW</span><span class="o">-</span><span class="n">JOB</span><span class="o">-</span><span class="n">NEURON75_TG</span><span class="o">-</span><span class="mf">018095E597064</span><span class="n">F9FBEC486ED29BD2138</span><span class="o">/</span><span class="mi">29057</span><span class="o">/</span>      <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Authorization</span><span class="p">:</span>              <span class="n">Bearer</span> <span class="n">Token</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>                    <span class="mi">200</span> <span class="n">OK</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span>               <span class="n">application</span><span class="o">/</span><span class="n">unknown</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first"><em>Get the file list of a completed job on CSCS-Pizdaint system</em></p>
+<blockquote>
+<div><p><strong>Example Request</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="o">/</span><span class="n">files</span><span class="o">/</span><span class="n">pizdaint</span><span class="o">/</span><span class="n">bsp_pizdaint_01</span><span class="o">/</span><span class="n">DBC6A573</span><span class="o">-</span><span class="mi">9</span><span class="n">D99</span><span class="o">-</span><span class="mi">4376</span><span class="o">-</span><span class="mi">983</span><span class="n">C</span><span class="o">-</span><span class="mi">9</span><span class="n">A3536CDD753</span><span class="o">/</span>    <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Authorization</span><span class="p">:</span>              <span class="n">Bearer</span> <span class="n">Token</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>                    <span class="mi">200</span> <span class="n">OK</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span>               <span class="n">application</span><span class="o">/</span><span class="n">json</span>
+
+<span class="p">[</span>
+    <span class="sa">u</span><span class="s1">&#39;/UNICORE_Job_1552071365450&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;/stderr&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;/UNICORE_SCRIPT_EXIT_CODE&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;/stdout&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;/bss_submit_1552071365450&#39;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first"><em>Download a file of a completed job on CSCS-Pizdaint system</em></p>
+<blockquote>
+<div><p><strong>Example Request</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="o">/</span><span class="n">files</span><span class="o">/</span><span class="n">pizdaint</span><span class="o">/</span><span class="n">bsp_pizdaint_01</span><span class="o">/</span><span class="n">DBC6A573</span><span class="o">-</span><span class="mi">9</span><span class="n">D99</span><span class="o">-</span><span class="mi">4376</span><span class="o">-</span><span class="mi">983</span><span class="n">C</span><span class="o">-</span><span class="mi">9</span><span class="n">A3536CDD753</span><span class="o">/</span><span class="n">stdout</span><span class="o">/</span>      <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Authorization</span><span class="p">:</span>              <span class="n">Bearer</span> <span class="n">Token</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>                    <span class="mi">200</span> <span class="n">OK</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span>               <span class="n">text</span><span class="o">/</span><span class="n">plain</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Service Account</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../user.html">User</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../jobs/jobs.html">Jobs</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quotas/quotas.html">Quotas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../projects/projects.html">Projects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../admin/admin.html">Admin</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../api.html">API</a><ul>
+  <li><a href="../user.html">User</a><ul>
+      <li>Previous: <a href="../jobs/job_delete.html" title="previous chapter">Job Delete/Cancel</a></li>
+      <li>Next: <a href="../quotas/quotas.html" title="next chapter">Quotas</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Roberto Smiriglia, Luca Leonardo Bologna, Michele Migliore.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../../../_sources/api/user/files/files.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

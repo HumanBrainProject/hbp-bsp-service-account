@@ -1,0 +1,218 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Job Delete/Cancel &#8212; Service Account 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Files" href="../files/files.html" />
+    <link rel="prev" title="Job Submission" href="job_submission.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="job-delete-cancel">
+<h1>Job Delete/Cancel<a class="headerlink" href="#job-delete-cancel" title="Permalink to this headline">¶</a></h1>
+<hr class="docutils" />
+<p>All the requests reported below must be appended to the service endpoint:</p>
+<p><strong>https://bspsa.cineca.it</strong></p>
+<p>The allowed HPC string values are:</p>
+<ul class="simple">
+<li>pizdaint</li>
+<li>nsg</li>
+</ul>
+<p>The allowed Project string values are:</p>
+<ul class="simple">
+<li>bsp_pizdaint_01</li>
+<li>bsp_nsg_01</li>
+</ul>
+<hr class="docutils" />
+<p>Deleting a job from a HPC system is perfomed through a <strong>DELETE</strong> request
+removes all the output files and related info concerning that job, on the HPC.</p>
+<p>Canceling a job is also performed throuh a <strong>DELETE</strong> request and allows to
+cancel a job before it is terminated. In this case, the user’s resources which
+have not been used will be restored.</p>
+<p><strong>URL: /jobs/</strong><em>(string: hpc)</em><strong>/</strong><em>(string: project_name)</em><strong>/</strong><em>(string: job_id)</em><strong>/</strong></p>
+<p><strong>Required Headers:</strong></p>
+<blockquote>
+<div><ul>
+<li><p class="first">Authorization:</p>
+<blockquote>
+<div><div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Authorization</span><span class="p">:</span> <span class="n">Bearer</span> <span class="o">&lt;</span><span class="n">token</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p><strong>Example:</strong></p>
+<blockquote>
+<div><ul>
+<li><p class="first"><em>Delete a job</em></p>
+<blockquote>
+<div><p><strong>Example Request</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DELETE</span> <span class="o">/</span><span class="n">jobs</span><span class="o">/</span><span class="n">nsg</span><span class="o">/</span><span class="n">bsp_nsg_01</span><span class="o">/</span><span class="n">NGBW</span><span class="o">-</span><span class="n">JOB</span><span class="o">-</span><span class="n">NEURON75_TG</span><span class="o">-</span><span class="n">E1B7ADD55CB54F1B9468EEEDFE9F6A64</span>                  <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Authorization</span><span class="p">:</span>              <span class="n">Bearer</span> <span class="n">Token</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>                    <span class="mi">200</span> <span class="n">OK</span>
+<span class="p">{</span>
+    <span class="sa">u</span><span class="s1">&#39;end_date&#39;</span><span class="p">:</span>            <span class="sa">u</span><span class="s1">&#39;2019-03-26T16:45:24Z&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;failed&#39;</span><span class="p">:</span>              <span class="kc">False</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;id&#39;</span><span class="p">:</span>                  <span class="mi">2</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;init_date&#39;</span><span class="p">:</span>           <span class="sa">u</span><span class="s1">&#39;2019-03-20T16:44:36Z&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;job_id&#39;</span><span class="p">:</span>              <span class="sa">u</span><span class="s1">&#39;NGBW-JOB-NEURON75_TG-E1B7ADD55CB54F1B9468EEEDFE9F6A64&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;owner&#39;</span><span class="p">:</span>               <span class="sa">u</span><span class="s1">&#39;306328&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;project&#39;</span><span class="p">:</span>             <span class="mi">1</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;project_hpc&#39;</span><span class="p">:</span>         <span class="sa">u</span><span class="s1">&#39;NSG&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;project_name&#39;</span><span class="p">:</span>        <span class="sa">u</span><span class="s1">&#39;bsp_nsg_01&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;runtime&#39;</span><span class="p">:</span>             <span class="mf">0.5</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;stage&#39;</span><span class="p">:</span>               <span class="sa">u</span><span class="s1">&#39;DELETED&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;terminal_stage&#39;</span><span class="p">:</span>      <span class="kc">True</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;title&#39;</span><span class="p">:</span>               <span class="sa">u</span><span class="s1">&#39;a job title&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p><strong>Example:</strong></p>
+<blockquote>
+<div><ul>
+<li><p class="first"><em>Cancel a job</em></p>
+<blockquote>
+<div><p><strong>Example Request</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DELETE</span> <span class="o">/</span><span class="n">jobs</span><span class="o">/</span><span class="n">nsg</span><span class="o">/</span><span class="n">bsp_nsg_01</span><span class="o">/</span><span class="n">NGBW</span><span class="o">-</span><span class="n">JOB</span><span class="o">-</span><span class="n">NEURON75_TG</span><span class="o">-</span><span class="n">E1B7ADD55CB54F1B9468EEEDFENEHCJ7</span>                  <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Authorization</span><span class="p">:</span>              <span class="n">Bearer</span> <span class="n">Token</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>                    <span class="mi">200</span> <span class="n">OK</span>
+<span class="p">{</span>
+    <span class="sa">u</span><span class="s1">&#39;end_date&#39;</span><span class="p">:</span>            <span class="sa">u</span><span class="s1">&#39;2019-03-26T16:45:24Z&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;failed&#39;</span><span class="p">:</span>              <span class="kc">False</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;id&#39;</span><span class="p">:</span>                  <span class="mi">54</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;init_date&#39;</span><span class="p">:</span>           <span class="sa">u</span><span class="s1">&#39;2019-03-20T16:44:36Z&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;job_id&#39;</span><span class="p">:</span>              <span class="sa">u</span><span class="s1">&#39;NGBW-JOB-NEURON75_TG-E1B7ADD55CB54F1B9468EEEDFENEHCJ7&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;owner&#39;</span><span class="p">:</span>               <span class="sa">u</span><span class="s1">&#39;306328&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;project&#39;</span><span class="p">:</span>             <span class="mi">1</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;project_hpc&#39;</span><span class="p">:</span>         <span class="sa">u</span><span class="s1">&#39;NSG&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;project_name&#39;</span><span class="p">:</span>        <span class="sa">u</span><span class="s1">&#39;bsp_nsg_01&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;runtime&#39;</span><span class="p">:</span>             <span class="mf">0.5</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;stage&#39;</span><span class="p">:</span>               <span class="sa">u</span><span class="s1">&#39;CANCELED&#39;</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;terminal_stage&#39;</span><span class="p">:</span>      <span class="kc">True</span><span class="p">,</span>
+    <span class="sa">u</span><span class="s1">&#39;title&#39;</span><span class="p">:</span>               <span class="sa">u</span><span class="s1">&#39;a job title&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Service Account</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../user.html">User</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="jobs.html">Jobs</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="list_jobs.html">List Jobs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="job_submission.html">Job Submission</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Job Delete/Cancel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../files/files.html">Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quotas/quotas.html">Quotas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../projects/projects.html">Projects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../admin/admin.html">Admin</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../api.html">API</a><ul>
+  <li><a href="../user.html">User</a><ul>
+  <li><a href="jobs.html">Jobs</a><ul>
+      <li>Previous: <a href="job_submission.html" title="previous chapter">Job Submission</a></li>
+      <li>Next: <a href="../files/files.html" title="next chapter">Files</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Roberto Smiriglia, Luca Leonardo Bologna, Michele Migliore.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../../../_sources/api/user/jobs/job_delete.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
