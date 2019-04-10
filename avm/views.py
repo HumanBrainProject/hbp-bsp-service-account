@@ -25,6 +25,18 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
+class ServiceStatus(APIView):
+    """
+    This API is used to check if the Service Account is up.  
+    """
+
+    renderer_classes = (JSONRenderer, )
+
+    def get(self, request):
+        response = {'bsp-service-account-status': 1}
+        return Response(response, status=status.HTTP_200_OK)
+
+
 class JobsView(APIView):
     """
     JobsView is used to submit job to HPC systems and also to retrieve

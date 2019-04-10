@@ -6,6 +6,10 @@ from avm import views
 
 urlpatterns = [
 
+    # Check if the the service is up
+    url(r'^status/$', views.ServiceStatus.as_view()),    
+
+
     # GET all jobs of all projects (dates/max number)
     # POST explicitly the project and hpc together with the job
     # DELETE delete or cancel a specific job
