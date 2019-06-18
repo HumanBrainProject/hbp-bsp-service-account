@@ -9,7 +9,10 @@ urlpatterns = [
     # Check if the the service is up
     url(r'^status/$', views.ServiceStatus.as_view()),    
 
-
+    # GET all HPC available to the Service Account
+    url(r'^hpc/$', views.HPCAvailable.as_view()),
+    url(r'^hpc/(?P<hpc>[a-zA-Z-_]+)/$', views.HPCAvailable.as_view()),
+    
     # GET all jobs of all projects (dates/max number)
     # POST explicitly the project and hpc together with the job
     # DELETE delete or cancel a specific job
