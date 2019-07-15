@@ -119,7 +119,7 @@ def submit(job, headers, inputs=[]):
                 upload(working_directory + "/files", i, headers)
         invoke_action(job_url, "start", headers)
        
-        r = requests.get(url=job_url, auth=api.get_credential())
+        r = requests.get(url=job_url, auth=api.get_credential(), verify=False)
          
         if r.status_code == 200:
             json_job = r.json()
