@@ -240,6 +240,7 @@ class JobsView(APIView):
             pizdaint_job = {
                 "Executable": payload['command'],
                 "Resources": {
+                    "Project": "ich011",
                     "Nodes": payload['node_number'],
                     "CPUsPerNode": payload['core_number'],
                     "Runtime": str(runtime / 60) + 'm',
