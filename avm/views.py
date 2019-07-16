@@ -37,6 +37,22 @@ class ServiceStatus(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+class HPCAvailable(APIView):
+    """
+    This API is used to get a list of the all HPC systems available on the Service Account.
+    """
+    
+    renderer_classes = (JSONRenderer, )
+
+    def get(self, request, hpc=None):
+        if not hpc:
+            return Response(json.dumps([h for h, _ in HPC]), status=status.HTTP_200_OK)
+        elif hpc.upper() in [h for h, _ in HPC]:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
 class JobsView(APIView):
     """
     JobsView is used to submit job to HPC systems and also to retrieve
