@@ -46,11 +46,13 @@ class HPCAvailable(APIView):
 
     def get(self, request, hpc=None):
         if not hpc:
-            return Response(json.dumps([h for h, _ in HPC]), status=status.HTTP_200_OK)
+            response = Response(json.dumps([h for h, _ in HPC]), status=status.HTTP_200_OK)
         elif hpc.upper() in [h for h, _ in HPC]:
-            return Response(status=status.HTTP_200_OK)
+            response = Response(status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            response = Response(status=status.HTTP_404_NOT_FOUND)
+        response['Access-Control-Allow-Origin'] = '*'
+        return response
 
 
 class JobsView(APIView):
