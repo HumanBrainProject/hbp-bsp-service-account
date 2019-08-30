@@ -83,9 +83,25 @@ DEBUG = False
 
 # NETWORK SETTINGS: set your ip/domain here.
 ALLOWED_HOSTS = [
-        '*',
-        ]
+    '*',
+]
 
+#CORS_ORIGIN_ALLOW_ALL = True
+
+#CORS_ALLOW_HEADERS = [
+#    'token',
+#    'authorization',
+#    'content-type',
+#    'user-agent',
+#    'x-csrftoken',
+#    'x-requested-with',
+#]
+
+
+CORS_ORIGIN_WHITELIST = [
+    'https://2.237.33.252:14786/' + '*',
+    'https://collab.humanbrainproject.eu/' + '*',
+]
 
 # HPC SETTINGS: add/enable your hpc here. This field is directly linked to 'project.hpc' on 'avm/models.py'.
 ENABLED_HPC = [
@@ -116,17 +132,20 @@ INSTALLED_APPS = [
     'pizdaint',
     'hbp_app_python_auth',
     'sslserver',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'service_account.urls'
 

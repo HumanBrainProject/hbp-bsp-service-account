@@ -422,6 +422,13 @@ class ProjectsView(APIView):
 
         logger.debug('ProjectsView--->GET: called.')
 
+        user = get_user(request)
+        if not isinstance(user, User):
+            logger.warning('JobsView--->GET: User not recognized.\n' +
+                           ' ================= USER ERRORS ====================\n' + user +
+                           ' ==================================================')
+            return Response(user, status=status.HTTP_403_FORBIDDEN)
+
         if hpc:
             hpc = hpc.upper()
             if hpc not in [i[0] for i in HPC]:
@@ -467,6 +474,11 @@ class QuotasView(APIView):
         logger.debug('QuotasView--->GET: called.')
 
         user = get_user(request)
+        if not isinstance(user, User):
+            logger.warning('JobsView--->GET: User not recognized.\n' +
+                           ' ================= USER ERRORS ====================\n' + user +
+                           ' ==================================================')
+            return Response(user, status=status.HTTP_403_FORBIDDEN)
 
         if hpc:
             hpc = hpc.upper()
