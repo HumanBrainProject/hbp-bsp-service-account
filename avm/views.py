@@ -19,6 +19,7 @@ from permissions import IsInGroups, IsNotBanned
 
 import logging
 import json
+import os
 
 
 logging.basicConfig()
@@ -46,13 +47,81 @@ class HPCAvailable(APIView):
 
     def get(self, request, hpc=None):
         if not hpc:
-            response = Response(json.dumps([h for h, _ in HPC]), status=status.HTTP_200_OK)
+            hpcs = [{'id': i, 'name': n} for i, n in HPC]
+            response = Response(hpcs, status=status.HTTP_200_OK)
         elif hpc.upper() in [h for h, _ in HPC]:
             response = Response(status=status.HTTP_200_OK)
         else:
             response = Response(status=status.HTTP_404_NOT_FOUND)
         response['Access-Control-Allow-Origin'] = '*'
         return response
+
+
+class JobsViewExample(APIView): 
+    """
+    This API is used by the HPC-Monitor webapp to submit an example job to the relative HPC.
+    """
+    renderer_classes = (JSONRenderer, )
+    permission_classes = (IsInGroups, IsNotBanned, )
+
+    def get(self, request, hpc, project_name):
+
+        logger.debug('JobsViewExample--->GET: Called.')
+        
+        user = get_user(request)
+        if not isinstance(user, User):
+            logger.warning('JobsViewExample--->GET: User not recognized.\n' + 
+                           ' =================== USER ERRORS =================\n' + user + 
+                           ' =================================================')
+            return Response(user, status=status.HTTP_403_FORBIDDEN)
+        hpc = hpc.upper()
+        if hpc_exists(hpc):
+            try:
+                project = Project.objects.get(name=project_name)
+                
+                # run example on NSG
+                if hpc == 'NSG':
+                    job_file_example = open('./job_examples/JonesEtAl2009_r31.zip')
+                    payload = {
+                        "tool": "NEURON74_PY_TG",
+                        "Runtime": 0.5
+                    }
+                   
+                    data, status_code = nsg.submit_job(enduser=get_nsg_enduser(user), payload=payload, infile=job_file_example)
+                    
+                    if status_code != 201 and status_code != 200:
+                        return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+                # run example on PIZDAINT
+                elif hpc == 'PIZDAINT':
+                    pizdaint_job_example = {
+                        "Executable": "/bin/date",
+                        "Resources": {
+                            "Project": "ich011",
+                            "NodeConstraints": "mc",
+                            "Runtime": "60"
+                        }
+                    }
+                    data, status_code = pizdaint.submit(job=pizdaint_job_example, headers={}) 
+                    
+                    if status_code != 201 and status_code != 200:
+                        return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+                data.update({
+                    'owner': user.id,
+                    'project': project.id,
+                    'runtime': 0.5,
+                    'title': 'check job submission for hpc-monitor',
+                })
+
+                serializer = JobSerializer(data=data)
+                if serializer.is_valid():
+                    job = serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+            except Project.DoesNotExist:
+                return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
 
 
 class JobsView(APIView):
