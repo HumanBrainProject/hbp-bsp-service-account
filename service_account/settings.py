@@ -86,7 +86,7 @@ ALLOWED_HOSTS = [
     '*',
 ]
 
-#CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
 
 #CORS_ALLOW_HEADERS = [
 #    'token',
@@ -99,8 +99,8 @@ ALLOWED_HOSTS = [
 
 
 CORS_ORIGIN_WHITELIST = [
-    'https://2.237.33.252:14786/' + '*',
-    'https://collab.humanbrainproject.eu/' + '*',
+    #'https://2.237.33.252:14786/' + '*',
+    #'https://collab.humanbrainproject.eu/' + '*',
 ]
 
 # HPC SETTINGS: add/enable your hpc here. This field is directly linked to 'project.hpc' on 'avm/models.py'.
