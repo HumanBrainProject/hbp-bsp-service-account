@@ -29,6 +29,10 @@ urlpatterns = [
     # submit job into hpc's project
     # delete all jobs into the hpc's project
     url(r'^jobs/(?P<hpc>[a-zA-Z-_]+)/(?P<project_name>[a-z0-9-_]+)/$', views.JobsView.as_view()),
+    
+    # submit example jobs
+    url(r'^jobs/(?P<hpc>[a-zA-Z-_]+)/(?P<project_name>[a-z0-9-_]+)/example/$', views.JobsViewExample.as_view()),
+
 
     # gives all the jobs from the specified hpc and project for single job
     # delete the specific job
