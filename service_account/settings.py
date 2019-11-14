@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-from module.path import KEYS_PATH 
+from module.path import KEYS_PATH, DUMP_JOB_PATH 
 
 import sys
 sys.path.append(KEYS_PATH)
