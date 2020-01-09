@@ -14,7 +14,7 @@ from nsg import nsg
 from pizdaint import pizdaint
 from pizdaint.utils.params import check_payload as check_pizdaint_value
 from utils.misc import get_user, get_nsg_enduser, update_job_status_and_quota, hpc_exists, dump_job
-from service_account.settings import DEFAULT_PROJECT as PROJECT, ENABLED_HPC as HPC
+from service_account.settings import DEFAULT_PROJECT as PROJECT, ENABLED_HPC as HPC, BASE_DIR
 from permissions import IsInGroups, IsNotBanned
 
 import logging
@@ -81,7 +81,7 @@ class JobsViewExample(APIView):
                 
                 # run example on NSG
                 if hpc == 'NSG':
-                    job_file_example = open('./job_examples/JonesEtAl2009_r31.zip')
+                    job_file_example = open(BASE_DIR + '/job_examples/JonesEtAl2009_r31.zip', 'r')
                     payload = {
                         "tool": "NEURON74_PY_TG",
                         "Runtime": 0.5

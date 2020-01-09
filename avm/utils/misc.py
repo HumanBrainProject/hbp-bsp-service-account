@@ -85,7 +85,7 @@ def get_user(request):
             'institution': institution,
             'country': country
         }
-
+        
         serializer = UserSerializer(data=data)
 
         if serializer.is_valid():
@@ -94,7 +94,8 @@ def get_user(request):
             logger.debug('get_user(): User ' + str(user) + ' was created successfully')
             add_default_quota_for_user(user)
         else:
-            logger.debug("get_user(): Errors in user creation.\nget_user(): ========= ERROR: =========\nget_user(): " + serializer.errors)
+            logger.debug('get_user(): Errors in user creation.\nget_user(): ========= ERROR: =========\nget_user():')  
+            print serializer.errors
             return serializer.errors
 
     return user

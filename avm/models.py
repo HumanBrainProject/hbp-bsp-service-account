@@ -55,7 +55,7 @@ class User(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
     username = models.CharField(max_length=50)
     email = models.EmailField()
-    institution = models.CharField(max_length=50, blank=True, null=True)
+    institution = models.CharField(max_length=100, blank=True, null=True)
     country = models.CharField(max_length=2, blank=True)
     is_admin = models.BooleanField(default=False)
     # groups identify the projects id
