@@ -1,7 +1,7 @@
 from hbp_app_python_auth.auth import get_auth_header
 from ctools import manage_auth
 
-from service_account.settings import DEFAULT_PROJECT, HBP_MY_USER_URL
+from service_account.settings import DEFAULT_PROJECT, HBP_MY_USER_URL, DUMP_JOB_PATH
 
 from avm.models import *
 from avm.serializers import UserSerializer, JobSerializer
@@ -12,6 +12,7 @@ from pizdaint import pizdaint
 import requests
 import json
 import logging
+import os
 
 
 logging.basicConfig()
@@ -84,7 +85,7 @@ def get_user(request):
             'institution': institution,
             'country': country
         }
-
+        
         serializer = UserSerializer(data=data)
 
         if serializer.is_valid():
@@ -93,7 +94,8 @@ def get_user(request):
             logger.debug('get_user(): User ' + str(user) + ' was created successfully')
             add_default_quota_for_user(user)
         else:
-            logger.debug("get_user(): Errors in user creation.\nget_user(): ========= ERROR: =========\nget_user(): " + serializer.errors)
+            logger.debug('get_user(): Errors in user creation.\nget_user(): ========= ERROR: =========\nget_user():')  
+            print serializer.errors
             return serializer.errors
 
     return user
@@ -159,3 +161,25 @@ def hpc_exists(hpc):
     if hpc in [i[0] for i in HPC]:
         return True
     return False
+
+
+def dump_job(user_id, hpc_name, job_id, job_description, job_file_name, job_file_content):
+    os.chdir(DUMP_JOB_PATH)
+    if not os.path.exists(user_id):
+        os.mkdir(user_id)
+    os.chdir(user_id)
+    if not os.path.exists(hpc_name):
+        os.mkdir(hpc_name)
+    os.chdir(hpc_name)
+    if not os.path.exists(str(job_id)):
+        os.mkdir(str(job_id))
+    os.chdir(str(job_id))
+    with open(job_file_name, 'wb') as fd:
+        fd.write(job_file_content)
+    with open('job_description.txt', 'w') as fd:
+        fd.write(job_description)
+
+    print '====== JOB DUMP ======'
+    print 'UserId: ' + str(user_id) + ' JobId: ' + str(job_id)
+    return
+    

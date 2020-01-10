@@ -13,8 +13,8 @@ from serializers import *
 from nsg import nsg
 from pizdaint import pizdaint
 from pizdaint.utils.params import check_payload as check_pizdaint_value
-from utils.misc import get_user, get_nsg_enduser, update_job_status_and_quota, hpc_exists
-from service_account.settings import DEFAULT_PROJECT as PROJECT, ENABLED_HPC as HPC
+from utils.misc import get_user, get_nsg_enduser, update_job_status_and_quota, hpc_exists, dump_job
+from service_account.settings import DEFAULT_PROJECT as PROJECT, ENABLED_HPC as HPC, BASE_DIR
 from permissions import IsInGroups, IsNotBanned
 
 import logging
@@ -81,7 +81,7 @@ class JobsViewExample(APIView):
                 
                 # run example on NSG
                 if hpc == 'NSG':
-                    job_file_example = open('./job_examples/JonesEtAl2009_r31.zip')
+                    job_file_example = open(BASE_DIR + '/job_examples/JonesEtAl2009_r31.zip', 'r')
                     payload = {
                         "tool": "NEURON74_PY_TG",
                         "Runtime": 0.5
@@ -257,15 +257,24 @@ class JobsView(APIView):
             # logger.info('JobsView--->POST: Payload not found!')
             return Response('Request incomplete. Parameters missing!', status=status.HTTP_400_BAD_REQUEST)
 
+        print request.FILES['file']
+        
         # check for job file
         try:
             job_file = request.FILES['file']
+            job_file_name = job_file.name
+            job_file_content = job_file.read()
+            job_file.seek(0)
         except KeyError:
             if hpc == 'NSG':
                 # logger.info('JobsView--->POST: Input file not found!')
                 return Response('Request incomplete. Input file missing!', status=status.HTTP_400_BAD_REQUEST)
 
-        runtime = float(payload['runtime']) * 60 * 60
+        try:
+            runtime = float(payload['runtime']) * 60 * 60
+        except ValueError:
+            return Response('Wrong runtime value', status=status.HTTP_400_BAD_REQUEST)
+
         # check if user has enough quota to run the job
         try:
             quota.sub(time=runtime)
@@ -289,7 +298,8 @@ class JobsView(APIView):
 
         # submit on NSG
         if hpc == 'NSG':
-            data, status_code = nsg.submit_job(enduser=get_nsg_enduser(user), payload=payload, infile=job_file)
+            job_description = payload
+            data, status_code = nsg.submit_job(enduser=get_nsg_enduser(user), payload=job_description, infile=job_file)
             # restore job's runtime if submit goes wrong
             if status_code != 201 and status_code != 200:
                 quota.add(runtime)
@@ -302,13 +312,14 @@ class JobsView(APIView):
                 job_file_name = request.META['HTTP_CONTENT_DISPOSITION'].split('filename=')[1]
                 job_input = {'To': job_file_name, 'Data': job_file.read()}
                 inputs = [job_input]
+                job_file_content = job_input['Data']
             except KeyError:
                 logger.info('No input file for pizdaint job')
             try:
                 check_pizdaint_value(payload)
             except ValueError:
 		return Response('Core number must be at least equal to 12 and node number at least equal to 1!', status=status.HTTP_400_BAD_REQUEST)
-            pizdaint_job = {
+            job_description = {
                 "Executable": payload['command'],
                 "Resources": {
                     "Project": "ich011",
@@ -318,7 +329,7 @@ class JobsView(APIView):
                     "NodeConstraints": "mc",
                 },
             }
-            data, status_code = pizdaint.submit(job=pizdaint_job, headers={}, inputs=inputs)
+            data, status_code = pizdaint.submit(job=job_description, headers={}, inputs=inputs)
 
             # restore job's runtime if submit goes wrong
             if status_code != 201 and status_code != 200:
@@ -338,7 +349,8 @@ class JobsView(APIView):
         serializer = JobSerializer(data=data)
         if serializer.is_valid():
             job = serializer.save()
-            # logger.debug('JobsView--->POST: Job "' + str(job) + '" submitted.')
+            dump_job(user_id=user.id, hpc_name=hpc.lower(), job_id=job.id, job_description=json.dumps(job_description), job_file_name=job_file_name, job_file_content=job_file_content)
+            #logger.debug('JobsView--->POST: Job "' + str(job) + '" submitted.')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
