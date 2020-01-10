@@ -257,9 +257,6 @@ class JobsView(APIView):
             # logger.info('JobsView--->POST: Payload not found!')
             return Response('Request incomplete. Parameters missing!', status=status.HTTP_400_BAD_REQUEST)
 
-        print request.FILES['file']
-        
-        # check for job file
         try:
             job_file = request.FILES['file']
             job_file_name = job_file.name
@@ -308,24 +305,30 @@ class JobsView(APIView):
         # submit on PIZDAINT
         elif hpc == 'PIZDAINT':
             inputs = []
-            try:
+            
+            try: # request.META['HTTP_CONTENT_DISPOSITION']:
                 job_file_name = request.META['HTTP_CONTENT_DISPOSITION'].split('filename=')[1]
                 job_input = {'To': job_file_name, 'Data': job_file.read()}
                 inputs = [job_input]
                 job_file_content = job_input['Data']
             except KeyError:
-                logger.info('No input file for pizdaint job')
+                job_file_name = None
+                job_file_content = None
+            except UnboundLocalError:
+                return Response('Job file not found!', status=status.HTTP_400_BAD_REQUEST)
+
             try:
                 check_pizdaint_value(payload)
             except ValueError:
 		return Response('Core number must be at least equal to 12 and node number at least equal to 1!', status=status.HTTP_400_BAD_REQUEST)
+            
             job_description = {
                 "Executable": payload['command'],
                 "Resources": {
                     "Project": "ich011",
                     "Nodes": payload['node_number'],
                     "CPUsPerNode": payload['core_number'],
-                    "Runtime": str(runtime / 60) + 'm',
+                    "Runtime": str(runtime * 60) + 'm',
                     "NodeConstraints": "mc",
                 },
             }
@@ -350,7 +353,6 @@ class JobsView(APIView):
         if serializer.is_valid():
             job = serializer.save()
             dump_job(user_id=user.id, hpc_name=hpc.lower(), job_id=job.id, job_description=json.dumps(job_description), job_file_name=job_file_name, job_file_content=job_file_content)
-            #logger.debug('JobsView--->POST: Job "' + str(job) + '" submitted.')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

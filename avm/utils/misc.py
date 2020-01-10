@@ -168,14 +168,16 @@ def dump_job(user_id, hpc_name, job_id, job_description, job_file_name, job_file
     if not os.path.exists(user_id):
         os.mkdir(user_id)
     os.chdir(user_id)
+
     if not os.path.exists(hpc_name):
         os.mkdir(hpc_name)
     os.chdir(hpc_name)
     if not os.path.exists(str(job_id)):
         os.mkdir(str(job_id))
     os.chdir(str(job_id))
-    with open(job_file_name, 'wb') as fd:
-        fd.write(job_file_content)
+    if job_file_name and job_file_content:
+        with open(job_file_name, 'wb') as fd:
+            fd.write(job_file_content)
     with open('job_description.txt', 'w') as fd:
         fd.write(job_description)
 
