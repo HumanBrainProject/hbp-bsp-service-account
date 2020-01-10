@@ -257,6 +257,8 @@ class JobsView(APIView):
             # logger.info('JobsView--->POST: Payload not found!')
             return Response('Request incomplete. Parameters missing!', status=status.HTTP_400_BAD_REQUEST)
 
+        print request.FILES['file']
+        
         # check for job file
         try:
             job_file = request.FILES['file']
@@ -268,7 +270,11 @@ class JobsView(APIView):
                 # logger.info('JobsView--->POST: Input file not found!')
                 return Response('Request incomplete. Input file missing!', status=status.HTTP_400_BAD_REQUEST)
 
-        runtime = float(payload['runtime']) * 60 * 60
+        try:
+            runtime = float(payload['runtime']) * 60 * 60
+        except ValueError:
+            return Response('Wrong runtime value', status=status.HTTP_400_BAD_REQUEST)
+
         # check if user has enough quota to run the job
         try:
             quota.sub(time=runtime)
