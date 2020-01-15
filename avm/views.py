@@ -328,10 +328,11 @@ class JobsView(APIView):
                     "Project": "ich011",
                     "Nodes": payload['node_number'],
                     "CPUsPerNode": payload['core_number'],
-                    "Runtime": str(runtime * 60) + 'm',
+                    "Runtime": str(runtime / 60) + 'm',  # runtime / 60 is right due to the previous runtime convertions
                     "NodeConstraints": "mc",
                 },
             }
+
             data, status_code = pizdaint.submit(job=job_description, headers={}, inputs=inputs)
 
             # restore job's runtime if submit goes wrong

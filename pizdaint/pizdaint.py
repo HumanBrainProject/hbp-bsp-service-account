@@ -16,7 +16,7 @@ def get_job_status(job, headers={}, user_token=None):
     log = ''
     r = api.get_job_status(job_id=job.job_id.lower(), headers=headers, user_token=user_token)
     data = r.content
-
+    
     if r.status_code == 200:
         for l in r.json()['log']:
             log += l + ';'
