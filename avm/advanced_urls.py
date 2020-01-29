@@ -5,10 +5,8 @@ import advanced_views as views
 
 urlpatterns = [
 
-    # advanced end point for pizdaint system
-    url(r'^advanced/pizdaint/$', views.pizdaint),
-    url(r'^advanced/pizdaint/(?P<project_name>[a-z0-9]+)/$', views.pizdaint)
-        
+    # advanced end point for unicore system
+    url(r'advanced/pizdaint/rest/core/*', views.unicore_pizdaint),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

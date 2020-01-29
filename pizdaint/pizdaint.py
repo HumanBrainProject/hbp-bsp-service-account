@@ -165,3 +165,19 @@ def get_job_files_list(job_id, headers={}):
 def download_job_file(job_id, file_id=None, headers={}):
     r = api.download_job_file(job_id=job_id.lower(), file_id=file_id, headers=headers)
     return r.content, r.status_code
+
+
+def advance_endpoint(method, url, headers, data=None, json=None):
+    new_headers = headers.copy()
+    URL = api.URL + url
+    print 'Advaced Pizdaint request FINAL URL = ' + URL
+    if method == 'GET':
+        r = requests.get(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
+    elif method == 'POST':
+        r = requests.post(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
+    elif method == 'PUT':
+        r = requests.put(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
+    elif method == 'DELETE':
+        r = requests.delete(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
+
+    return r

@@ -163,6 +163,15 @@ class Quota(models.Model):
         self.save()
 
 
+class AdvancedJob(models.Model):
+    job_id = models.CharField(max_length=100)
+    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    runtime = models.FloatField()
+
+    def __str__(self):
+        return '<owner(' + str(self.owner) + '), job_id(' + str(self.job_id) + ')>'
+
+
 class Job(models.Model):
     job_id = models.CharField(max_length=100)
     owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)

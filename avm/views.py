@@ -83,7 +83,7 @@ class JobsViewExample(APIView):
                 if hpc == 'NSG':
                     job_file_example = open(BASE_DIR + '/job_examples/JonesEtAl2009_r31.zip', 'r')
                     payload = {
-                        "tool": "NEURON74_PY_TG",
+                        "tool": "NEURON77_TG",
                         "Runtime": 0.5
                     }
                    
@@ -445,7 +445,6 @@ class FilesView(APIView):
         logger.debug('FilesView--->GET: called.')
 
         user = get_user(request)
-
         if not isinstance(user, User):
             logger.warning('FilesView--->GET: User not recognized.\n' +
                            ' ================= USER ERRORS ====================\n' + user +
@@ -484,8 +483,10 @@ class FilesView(APIView):
                         return FileResponse(outfile, status=status_code)
 
             except Job.DoesNotExist:
+                print 'Job not found'
                 return Response('Job not found!', status=status.HTTP_404_NOT_FOUND)
         except Project.DoesNotExist:
+            print 'Porject not found'
             return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
 
 

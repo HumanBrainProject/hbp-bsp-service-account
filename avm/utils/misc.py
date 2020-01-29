@@ -163,7 +163,7 @@ def hpc_exists(hpc):
     return False
 
 
-def dump_job(user_id, hpc_name, job_id, job_description, job_file_name, job_file_content):
+def dump_job(user_id, hpc_name, job_id, job_description, job_file_name=None, job_file_content=None):
     os.chdir(DUMP_JOB_PATH)
     if not os.path.exists(user_id):
         os.mkdir(user_id)
@@ -178,8 +178,8 @@ def dump_job(user_id, hpc_name, job_id, job_description, job_file_name, job_file
     if job_file_name and job_file_content:
         with open(job_file_name, 'wb') as fd:
             fd.write(job_file_content)
-    with open('job_description.txt', 'w') as fd:
-        fd.write(job_description)
+        with open('job_description.txt', 'w') as fd:
+            fd.write(job_description)
 
     print '====== JOB DUMP ======'
     print 'UserId: ' + str(user_id) + ' JobId: ' + str(job_id)

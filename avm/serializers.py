@@ -12,6 +12,12 @@ class JobSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AdvancedJobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdvancedJob
+        fields = '__all__'
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
