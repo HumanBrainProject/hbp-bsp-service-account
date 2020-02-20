@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from models import *
 from serializers import *
 from pizdaint.pizdaint import advance_endpoint as pizdaint 
-from pizdaint.utils.api import URL as ORIGINAL_URL
+from pizdaint.utils.api import ROOT_URL as ORIGINAL_URL
 from utils.misc import get_user, update_job_status_and_quota, dump_job
 from service_account.settings import ENABLED_HPC as HPC
 from service_account.settings import DEFAULT_PROJECT as PROJECT
@@ -17,7 +17,8 @@ import pprint
 import re
 
 
-NEW_URL = 'https://bspsa.cineca.it/advanced/pizdaint/rest/core'
+# NEW_URL = 'https://bspsa.cineca.it/advanced/pizdaint/rest/core'
+NEW_URL = 'https://bspsa.cineca.it/advanced/pizdaint'
 
 
 # To implement permission classes
@@ -56,7 +57,15 @@ def submit_job(user, project, request, headers):
             runtime = v * 60 * 60
         elif t[0] == 'd':
             runtime = v * 60 * 60 * 24
-        
+       
+    # check for job imports
+    if 'Imports' in payload.keys():
+        print(payload['Imports'])
+        for i in payload['Imports']:
+            for k in i.keys():
+                i[k] = i[k].replace(NEW_URL, ORIGINAL_URL)
+        print(payload['Imports'])
+
     try:
         quota = Quota.objects.get(user=user, project=project)
     except Quota.DoesNotExist:
@@ -70,8 +79,11 @@ def submit_job(user, project, request, headers):
             quota.sub(time=runtime)
         except ValueError:
            return HttpResponseForbidden('Quota not enough!')
+    
+    pprint.pprint(payload)
 
-    r = pizdaint(method=request.method, url='/jobs', headers=headers, json=payload)
+    # r = pizdaint(method=request.method, url='/jobs', headers=headers, json=payload)
+    r = pizdaint(method=request.method, url='/rest/core/jobs', headers=headers, json=payload)
     if r.status_code == 201:
         # record job
         data = {
@@ -106,7 +118,7 @@ def unicore_pizdaint(request, project_name=None):
     if not user_has_permission(user, project):
         return HttpResponseForbidden('User has not access or is banned from this project.')
 
-    URL = request.path.split('advanced/pizdaint/rest/core')[1]
+    URL = request.path.split('advanced/pizdaint')[1]
 
     headers = {}
     if 'HTTP_CONTENT_TYPE' in request.META:
@@ -114,7 +126,7 @@ def unicore_pizdaint(request, project_name=None):
     if 'HTTP_ACCEPT' in request.META:
         headers.update({'accept': request.META['HTTP_ACCEPT']})
     
-    if URL == '/jobs' and request.method == 'POST':
+    if URL == '/rest/core/jobs' and request.method == 'POST':
         r = submit_job(user, project, request, headers)
     
     else:

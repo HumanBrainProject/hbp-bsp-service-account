@@ -169,8 +169,9 @@ def download_job_file(job_id, file_id=None, headers={}):
 
 def advance_endpoint(method, url, headers, data=None, json=None):
     new_headers = headers.copy()
-    URL = api.URL + url
-    print 'Advaced Pizdaint request FINAL URL = ' + URL
+    # URL = api.URL + url
+    URL = api.ROOT_URL + url
+    print '\n\n\nAdvaced Pizdaint request FINAL URL = ' + URL + '\n\n\n'
     if method == 'GET':
         r = requests.get(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
     elif method == 'POST':

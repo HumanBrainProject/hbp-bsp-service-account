@@ -6,7 +6,9 @@ from service_account.settings import PIZDAINT_PASSWORD as PASSWORD
 import requests
 
 
-URL = 'https://brissago.cscs.ch:8080/DAINT-CSCS/rest/core'
+ROOT_URL = 'https://brissago.cscs.ch:8080/DAINT-CSCS'
+# URL = 'https://brissago.cscs.ch:8080/DAINT-CSCS/rest/core'
+URL = ROOT_URL + '/rest/core'
 JOBS_URL = URL + '/jobs'
 SITES_URL = URL + '/sites'
 REGISTRIES_URL = URL + '/registries'
