@@ -177,18 +177,19 @@ class Job(models.Model):
     owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     project = models.ForeignKey(Project, on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=100, blank=True, default='')
-    init_date = models.DateTimeField()
+    init_date = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
     runtime = models.FloatField()
-    stage = models.CharField(max_length=20)
+    stage = models.CharField(max_length=20, blank=True)
     terminal_stage = models.BooleanField(default=False)
     failed = models.BooleanField(default=False)
+    is_advanced = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (('job_id', 'project'),)
 
     def __str__(self):
-        return '<owner(' + str(self.owner) + '), job_id(' + str(self.job_id) + '), project(' + str(self.project) + ')>'
+        return '<owner(' + str(self.owner) + '), job_id(' + str(self.job_id) + '), project(' + str(self.project) + '), is_advanced(' + str(self.is_advanced) + ')>'
 
     def print_all(self):
         print '{\n' \
@@ -202,4 +203,5 @@ class Job(models.Model):
               + '  stage: "' + str(self.stage) + '"\n' \
               + '  terminal_stage: "' + str(self.terminal_stage) + '"\n' \
               + '  failed: "' + str(self.failed) + '"\n' \
+              + '  is_advanced: "' + str(self.is_advanced) + '"\n' \
               + '}'

@@ -6,12 +6,13 @@ from rest_framework.response import Response
 
 from models import *
 from serializers import *
-from pizdaint.pizdaint import advance_endpoint as pizdaint 
+from pizdaint.pizdaint import advance_endpoint as pizdaint, extract_job_data 
 from pizdaint.utils.api import ROOT_URL as ORIGINAL_URL
 from utils.misc import get_user, update_job_status_and_quota, dump_job
 from service_account.settings import ENABLED_HPC as HPC
 from service_account.settings import DEFAULT_PROJECT as PROJECT
 
+import requests
 import json
 import pprint
 import re
@@ -44,7 +45,7 @@ def submit_job(user, project, request, headers):
     
     # force job to be submitted on the Service Account's project
     payload['Resources'].update({u'Project': u'ich011'})
-        
+    
     # check if user has enough quota
     try:
         runtime = payload['Resources']['Runtime'] 
@@ -60,12 +61,11 @@ def submit_job(user, project, request, headers):
        
     # check for job imports
     if 'Imports' in payload.keys():
-        print(payload['Imports'])
         for i in payload['Imports']:
             for k in i.keys():
                 i[k] = i[k].replace(NEW_URL, ORIGINAL_URL)
-        print(payload['Imports'])
 
+    # check for user's quota
     try:
         quota = Quota.objects.get(user=user, project=project)
     except Quota.DoesNotExist:
@@ -80,20 +80,38 @@ def submit_job(user, project, request, headers):
         except ValueError:
            return HttpResponseForbidden('Quota not enough!')
     
-    pprint.pprint(payload)
+    # check for job title
+    try:
+        title = payload['Name']
+    except KeyError:
+        title = None
+        
 
-    # r = pizdaint(method=request.method, url='/jobs', headers=headers, json=payload)
-    r = pizdaint(method=request.method, url='/rest/core/jobs', headers=headers, json=payload)
+    # submit job
+    r = pizdaint(method=request.method, append_url='/rest/core/jobs', headers=headers, json=payload)
     if r.status_code == 201:
         # record job
+        job_id = r.headers['Location'].split('jobs/')[1].upper()
+        r_job = pizdaint(method='GET', url=r.headers['Location'], headers=headers)
+        
         data = {
-            'job_id': r.headers['Location'].split('jobs/')[1].upper(), 
+            'title': title,
+            'job_id': job_id, 
             'owner': user.id,
             'runtime': float(runtime) / 3600,
+            'is_advanced': True,
+            'project': project.id,
+            'init_date': r_job.json()['submissionTime'],
+            'stage': r_job.json()['status']
         }
-        serializer = AdvancedJobSerializer(data=data)
+        serializer = JobSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+        else:
+            print 'Serialization error on Advanced pizdaint.'
+            print str(serializer.errors) 
+            print 'Job: '
+            pprint.pprint(data)
 
     return r
 
@@ -149,7 +167,33 @@ def unicore_pizdaint(request, project_name=None):
             except ValueError:
                 str_data = request.body
 
-        r = pizdaint(method=request.method, url=URL, headers=headers, data=str_data, json=json_data)
+        
+        r = pizdaint(method=request.method, append_url=URL, headers=headers, data=str_data, json=json_data)
+        
+        if r.status_code == 200:
+            if request.method == 'GET' and '/rest/core/jobs/' in URL:
+                # update job record if user request job's info
+                job_id = URL.split('/rest/core/jobs/')[1].upper()
+                try:
+                    job = Job.objects.get(job_id=job_id, project=project.id)
+                    data = extract_job_data(job, r)
+                    serializer = JobSerializer(instance=job, data=data, partial=True)
+                    if serializer.is_valid():
+                        job = serializer.save()
+                        # restore unused quota
+                        if job.end_date:
+                            delta_time = job.end_date - job.init_date
+                            delta_seconds = delta_time.days * 24 * 60 * 60 + delta_time.seconds
+                            quota = Quota.objects.get(user=user, project=job.project)
+                            quota.add(time=delta_seconds)
+                    else:
+                        print 'Serializer error on Adavanced Job record update'
+                        print str(serializer.errors)
+                        print 'Data:'
+                        pprint.pprint(job)
+                        
+                except Job.DoesNotExist:
+                    print 'Job ' + str(job_id) + ' not exists'
 
     access_control_expose_headers = []
     response = HttpResponse()

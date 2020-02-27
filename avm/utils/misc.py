@@ -39,11 +39,12 @@ def get_user(request):
     # Getting user's info from HBP_COLLAB
     r = requests.get(url=user_url, headers=headers)
 
-    if r.status_code != 200:
-        logger.debug("get_user(): User's HBP Token not valid... Try to renew it.")
-        manage_auth.Token.renewToken(request)
-        headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
-        r = request.get(url=user_url, headers=headers)
+    # This code may not work
+    #if r.status_code != 200:
+    #    logger.debug("get_user(): User's HBP Token not valid... Try to renew it.")
+    #    manage_auth.Token.renewToken(request)
+    #    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
+    #    r = request.get(url=user_url, headers=headers)
 
     j = json.loads(r.content)
 
