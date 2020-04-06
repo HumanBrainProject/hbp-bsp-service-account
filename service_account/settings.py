@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-from module.path import KEYS_PATH, DUMP_JOB_PATH 
+from service_account.module.path import KEYS_PATH, DUMP_JOB_PATH, DOWNLOAD_DIR 
 
 import sys
 sys.path.append(KEYS_PATH)
@@ -30,6 +30,8 @@ else:
 
 PIZDAINT_USER = pizdaint_key.USER
 PIZDAINT_PASSWORD = pizdaint_key.PASSWORD
+
+JOB_SECURITY_FILE_CHECK = ['opt_neuron.py', 'ipyparallel.sbatch']
 
 
 import os
@@ -83,7 +85,7 @@ DEBUG = False
 
 # NETWORK SETTINGS: set your ip/domain here.
 ALLOWED_HOSTS = [
-    '*',
+    'bspsa.cineca.it',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True

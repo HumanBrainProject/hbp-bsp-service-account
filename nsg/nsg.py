@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ElTree
 import logging
 
-from utils.params import *
-from utils import api
+from nsg.utils.params import *
+from nsg.utils import api
 
 
 logger = logging.getLogger(__name__)

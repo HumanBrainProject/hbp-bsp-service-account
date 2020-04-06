@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from models import *
+from avm.models import *
 
 
 class JobSerializer(serializers.ModelSerializer):

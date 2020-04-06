@@ -1,5 +1,5 @@
-from utils.params import *
-from utils import api
+from pizdaint.utils.params import *
+from pizdaint.utils import api
 from datetime import timedelta
 from bs4 import BeautifulSoup
 
@@ -110,6 +110,10 @@ def submit(job, headers, inputs=[]):
         # before we have uploaded data
         job['haveClientStageIn'] = 'true'
 
+    r = requests.post(url=api.JOBS_URL, data=json.dumps(job), headers=my_headers, auth=api.get_credential(), verify=False)
+        
+    if r.status_code == 201:
+        job_url = r.headers['Location']
         data['job_id'] = get_job_id(job_url)
 
         #  upload input data and explicitely start job
@@ -121,7 +125,7 @@ def submit(job, headers, inputs=[]):
         invoke_action(job_url, "start", headers)
        
         r = requests.get(url=job_url, auth=api.get_credential(), verify=False)
-         
+             
         if r.status_code == 200:
             json_job = r.json()
             data.update({
@@ -152,7 +156,7 @@ def get_job_files_list(job_id, headers={}):
     data = []
     job_id = job_id.lower()
     r = api.get_job_file_list(job_id=job_id.lower(), headers=headers)
-    print r.status_code, r.content
+    
     if r.status_code == 200:
         soup = BeautifulSoup(r.content)
         file_list = soup.findAll("ul")[0].findAll("li")
@@ -184,7 +188,3 @@ def advance_endpoint(method, headers, url=None, append_url=None, data=None, json
         r = requests.delete(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
 
     return r
-from utils.params import *
-from utils import api
-from datetime import timedelta
-from bs4 import BeautifulSoup

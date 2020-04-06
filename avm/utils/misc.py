@@ -1,5 +1,5 @@
-from hbp_app_python_auth.auth import get_auth_header
-from ctools import manage_auth
+#from hbp_app_python_auth.auth import get_auth_header
+#from ctools import manage_auth
 
 from service_account.settings import DEFAULT_PROJECT, HBP_MY_USER_URL, DUMP_JOB_PATH
 
@@ -96,7 +96,7 @@ def get_user(request):
             add_default_quota_for_user(user)
         else:
             logger.debug('get_user(): Errors in user creation.\nget_user(): ========= ERROR: =========\nget_user():')  
-            print serializer.errors
+            print(serializer.errors)
             return serializer.errors
 
     return user
@@ -182,7 +182,21 @@ def dump_job(user_id, hpc_name, job_id, job_description, job_file_name=None, job
         with open('job_description.txt', 'w') as fd:
             fd.write(job_description)
 
-    print '====== JOB DUMP ======'
-    print 'UserId: ' + str(user_id) + ' JobId: ' + str(job_id)
+    print('====== JOB DUMP ======')
+    print('UserId: ' + str(user_id) + ' JobId: ' + str(job_id))
     return
-    
+   
+
+from service_account.settings import DOWNLOAD_DIR
+
+def download_job(user_id, file_id, file_content):
+    if not os.path.exists(os.path.join(DOWNLOAD_DIR, user_id)):
+        os.mkdir(os.path.join(DOWNLOAD_DIR, user_id))
+    download_path = os.path.join(DOWNLOAD_DIR, user_id)
+    if file_id in os.listdir(download_path):
+        print('removing %s... ' % file_id, end='')
+        os.remove(os.path.join(download_path, file_id))
+        print('OK')
+    with open(os.path.join(download_path, file_id), 'wb') as fd:
+        fd.write(file_content)
+    return os.path.join(download_path, file_id)

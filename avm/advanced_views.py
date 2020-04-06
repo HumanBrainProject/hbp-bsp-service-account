@@ -4,11 +4,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.response import Response
 
-from models import *
-from serializers import *
+from avm.models import *
+from avm.serializers import *
 from pizdaint.pizdaint import advance_endpoint as pizdaint, extract_job_data 
 from pizdaint.utils.api import ROOT_URL as ORIGINAL_URL
-from utils.misc import get_user, update_job_status_and_quota, dump_job
+from avm.utils.misc import get_user, update_job_status_and_quota, dump_job
 from service_account.settings import ENABLED_HPC as HPC
 from service_account.settings import DEFAULT_PROJECT as PROJECT
 
@@ -108,9 +108,9 @@ def submit_job(user, project, request, headers):
         if serializer.is_valid():
             serializer.save()
         else:
-            print 'Serialization error on Advanced pizdaint.'
-            print str(serializer.errors) 
-            print 'Job: '
+            print('Serialization error on Advanced pizdaint.')
+            print(serializer.errors) 
+            print('Job: ')
             pprint.pprint(data)
 
     return r
@@ -187,18 +187,24 @@ def unicore_pizdaint(request, project_name=None):
                             quota = Quota.objects.get(user=user, project=job.project)
                             quota.add(time=delta_seconds)
                     else:
-                        print 'Serializer error on Adavanced Job record update'
-                        print str(serializer.errors)
-                        print 'Data:'
+                        print('Serializer error on Adavanced Job record update')
+                        print(serializer.errors)
+                        print('Data:')
                         pprint.pprint(job)
                         
                 except Job.DoesNotExist:
-                    print 'Job ' + str(job_id) + ' not exists'
+                    print('Job ' + str(job_id) + ' not exists')
 
     access_control_expose_headers = []
     response = HttpResponse()
     response.status_code = r.status_code
-    response.content = r.content.replace(ORIGINAL_URL, NEW_URL)
+    
+    try:
+        new_content = str(r.content.decode('utf-8')).replace(ORIGINAL_URL, NEW_URL)
+    except UnicodeDecodeError:
+        new_content = r.content
+
+    response.content = new_content
     for k in r.headers.keys():
         if k == 'Content-Length':
             response[k] = len(response.content)
@@ -206,7 +212,7 @@ def unicore_pizdaint(request, project_name=None):
         elif k == 'Location' or k == 'Content-Type' or k == 'Cache-Control' or k == 'Content-Language' or k == 'Expires' or k == 'Last-Modified' or k == 'Pragma':
             access_control_expose_headers.append(k)
 
-        response[k] = r.headers[k].replace(ORIGINAL_URL, NEW_URL) 
+        response[k] = str(r.headers[k]).replace(ORIGINAL_URL, NEW_URL) 
     
     response['Access-Control-Expose-Headers'] = ', '.join(access_control_expose_headers)
 

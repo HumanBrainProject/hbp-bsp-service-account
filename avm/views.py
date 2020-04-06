@@ -9,13 +9,14 @@ from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, FileUploadParser
 from rest_framework.renderers import JSONRenderer
 
-from serializers import *
+from avm.serializers import *
 from nsg import nsg
 from pizdaint import pizdaint
 from pizdaint.utils.params import check_payload as check_pizdaint_value
-from utils.misc import get_user, get_nsg_enduser, update_job_status_and_quota, hpc_exists, dump_job
-from service_account.settings import DEFAULT_PROJECT as PROJECT, ENABLED_HPC as HPC, BASE_DIR
-from permissions import IsInGroups, IsNotBanned
+from avm.utils.misc import * 
+from avm.utils.job_security_check import check_job
+from service_account.settings import DEFAULT_PROJECT as PROJECT, ENABLED_HPC as HPC, BASE_DIR, DOWNLOAD_DIR
+from avm.permissions import IsInGroups, IsNotBanned
 
 import logging
 import json
@@ -55,6 +56,36 @@ class HPCAvailable(APIView):
             response = Response(status=status.HTTP_404_NOT_FOUND)
         response['Access-Control-Allow-Origin'] = '*'
         return response
+
+
+class JobSecurityCheck(APIView):
+    """
+    This API is used to check if a job is valid to be run on the HPC.
+    """
+    render_classes = (JSONRenderer, )
+    
+    def post(self, request, hpc):
+       
+        user = get_user(request)
+        if not isinstance(user, User):
+            # ADD LOG
+            return Response(user, status.status.HTTP_403_FORBIDDEN)
+
+        hpc = hpc.upper()
+        if not hpc_exists(hpc):
+            return Response(data='HPC not found!', status=status.HTTP_404_NOT_FOUND)
+        
+        job_file = request.FILES['file']
+
+        if hpc == 'PIZDAINT':
+            job_file_name = request.META['HTTP_CONTENT_DISPOSITION'].split('filename=')[1]
+            
+        if check_job(user=user, job_file=job_file):
+            print('Job can be submitted')
+            return Response(data='You can submit this job !', status=status.HTTP_200_OK)
+        else:
+            print('Job not allowed')
+            return Response(data='Job not allowed to be submitted', status=status.HTTP_401_UNAUTHORIZED)
 
 
 class JobsViewExample(APIView): 
@@ -320,7 +351,7 @@ class JobsView(APIView):
             try:
                 check_pizdaint_value(payload)
             except ValueError:
-		return Response('Core number must be at least equal to 12 and node number at least equal to 1!', status=status.HTTP_400_BAD_REQUEST)
+                return Response('Core number must be at least equal to 12 and node number at least equal to 1!', status=status.HTTP_400_BAD_REQUEST)
             
             job_description = {
                 "Executable": payload['command'],
@@ -462,6 +493,7 @@ class FilesView(APIView):
                     if not fileid:
                         if job.terminal_stage:
                             files, status_code = nsg.get_job_files_list(enduser=get_nsg_enduser(user), jobid=job_id)
+
                         else:
                             files, status_code = nsg.list_workingdir_files(enduser=get_nsg_enduser(user), jobid=job_id)
                         return Response(files, status=status_code)
@@ -469,9 +501,14 @@ class FilesView(APIView):
                     else:
                         if job.terminal_stage:
                             outfile, status_code = nsg.download_output_file(enduser=get_nsg_enduser(user), jobid=job_id, fileid=fileid)
+                        
                         else:
                             outfile, status_code = nsg.download_working_directory_file(enduser=get_nsg_enduser(user), jobid=job_id, filename=fileid)
-                        return FileResponse(outfile, status=status_code)
+                        
+                        if status_code == 200:
+                            job_output = download_job(user.id, fileid, outfile)
+                        
+                        return FileResponse(open(job_output, 'rb'), status=status_code, content_type='application/octet-stream')
 
                 elif job.project.hpc == 'PIZDAINT':
                         # getting files list from PIZDAINT
@@ -479,14 +516,28 @@ class FilesView(APIView):
                         file_list, status_code = pizdaint.get_job_files_list(job_id=job_id)
                         return Response(data=file_list, status=status_code)
                     else:
+                        
+                        #if not os.path.exists(os.path.join(DOWNLOAD_DIR, user.id)):
+                        #    os.mkdir(os.path.join(DOWNLOAD_DIR, user.id))
+                        #download_path = os.path.join(DOWNLOAD_DIR, user.id)
+                        #if fileid in os.listdir(download_path):
+                        #    print('removing %s... ' % fileid, end='')
+                        #    os.remove(os.path.join(download_path, fileid))
+                        #    print('OK')
+
                         outfile, status_code = pizdaint.download_job_file(job_id=job_id, file_id=fileid)
-                        return FileResponse(outfile, status=status_code)
+                        if status_code == 200:
+                        #    with open(os.path.join(download_path, fileid), 'wb') as fd:
+                        #        fd.write(outfile)
+                            job_output = download_job(user.id, fileid, outfile)  
+
+                        return FileResponse(open(job_output, 'rb'), status=status_code, content_type='application/octet-stream')
 
             except Job.DoesNotExist:
-                print 'Job not found'
+                print('Job not found')
                 return Response('Job not found!', status=status.HTTP_404_NOT_FOUND)
         except Project.DoesNotExist:
-            print 'Porject not found'
+            print('Porject not found')
             return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
 
 

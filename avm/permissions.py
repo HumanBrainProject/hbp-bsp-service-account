@@ -36,10 +36,10 @@ class IsInGroups(permissions.BasePermission):
         user_groups = user.groups.split(',')
         if user_groups == '':
             return False
-	group = request.path.split('/')[2:-1]
+        group = request.path.split('/')[2:-1]
         if len(group) < 2:
             return True
-	elif len(group) >= 2:
+        elif len(group) >= 2:
             try:
                 project = Project.objects.get(hpc=group[0].upper(), name=group[1])
                 if str(project.id) in user_groups:

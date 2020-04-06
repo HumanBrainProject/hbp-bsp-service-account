@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 
-import advanced_views as views
+import avm.advanced_views as views
 
 urlpatterns = [
 

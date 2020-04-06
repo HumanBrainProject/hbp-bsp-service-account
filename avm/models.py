@@ -39,7 +39,7 @@ class Project(models.Model):
         return super(Project, self).save(*args, **kwargs)
 
     def print_all(self):
-        print '{\n' \
+        print('{\n' \
             + '     id: "' + str(self.id) + '"\n' \
             + '     hpc: "' + str(self.hpc) + '"\n' \
             + '     init_time: "' + str(self.init_time) + '"\n' \
@@ -48,7 +48,7 @@ class Project(models.Model):
             + '     space_left: "' + str(self.space_left) + '"\n' \
             + '     user_time: "' + str(self.user_time) + '"\n' \
             + '     user_space: "' + str(self.user_space) + '"\n' \
-            + '}'
+            + '}')
 
 
 class User(models.Model):
@@ -67,7 +67,7 @@ class User(models.Model):
         return '<id:("' + str(self.id) + '"), username:("' + str(self.username) + '")>'
 
     def print_all(self):
-        print '{\n' \
+        print('{\n' \
             + '  id: "' + str(self.id) + '"\n' \
             + '  username: "' + str(self.username) + '"\n' \
             + '  email: "' + str(self.email) + '"\n' \
@@ -76,7 +76,7 @@ class User(models.Model):
             + '  is_admin: "' + str(self.is_admin) + '"\n' \
             + '  groups: "' + str(self.groups) + '"\n' \
             + '  banned_from: "' + str(self.banned_from) + '"\n' \
-            + '}'
+            + '}')
 
     def add_group(self, project_id):
         if not isinstance(project_id, str):
@@ -119,7 +119,7 @@ class User(models.Model):
             self.country = 'IT'
         if self.groups == '':
             for h in HPC:
-		project = Project.objects.get(hpc=h[0], name=DEFAULT_PROJECT[h[0]])
+                project = Project.objects.get(hpc=h[0], name=DEFAULT_PROJECT[h[0]])
                 self.groups += str(project.id) + ','
         return super(User, self).save(*args, **kwargs)
 
@@ -192,7 +192,7 @@ class Job(models.Model):
         return '<owner(' + str(self.owner) + '), job_id(' + str(self.job_id) + '), project(' + str(self.project) + '), is_advanced(' + str(self.is_advanced) + ')>'
 
     def print_all(self):
-        print '{\n' \
+        print('{\n' \
               + '  id: "' + str(self.id) + '"\n' \
               + '  job_id: "' + str(self.job_id) + '"\n' \
               + '  owner: "' + str(self.owner) + '"\n' \
@@ -204,4 +204,4 @@ class Job(models.Model):
               + '  terminal_stage: "' + str(self.terminal_stage) + '"\n' \
               + '  failed: "' + str(self.failed) + '"\n' \
               + '  is_advanced: "' + str(self.is_advanced) + '"\n' \
-              + '}'
+              + '}')
