@@ -87,6 +87,18 @@ def submit_job(user, project, request, headers):
         title = None
         
 
+    # adding userid tag before submit job
+    k = payload.keys()
+    if 'Tags' in k:
+        payload['Tags'].append('userid' + user.id)
+    elif 'tags' in k:
+        payload['tags'].append('userid' + user.id)
+    elif 'TAGS' in k:
+        payload['TAGS'].append('userid' + user.id)
+    else:
+        payload.update({'Tags': ['userid' + user.id]})
+
+    print(payload)
     # submit job
     r = pizdaint(method=request.method, append_url='/rest/core/jobs', headers=headers, json=payload)
     if r.status_code == 201:
@@ -157,6 +169,12 @@ def unicore_pizdaint(request, project_name=None):
                 URL += '?'
                 for k in json_data:
                     URL += k + '=' + str(json_data[k])
+            # Add user tag in GET request
+            s = URL.split('?tags=')
+            try:
+                URL = s[0] + '?tags=' + s[1] + ',userid' + user.id
+            except IndexError:
+                URL = s[0] + '?tags=userid' + user.id
 
         elif request.method == 'POST':
             json_data = request.POST
@@ -167,8 +185,8 @@ def unicore_pizdaint(request, project_name=None):
             except ValueError:
                 str_data = request.body
 
-        
         r = pizdaint(method=request.method, append_url=URL, headers=headers, data=str_data, json=json_data)
+        #print(request.method, r.status_code, r.content, sep='\n')        
         
         if r.status_code == 200:
             if request.method == 'GET' and '/rest/core/jobs/' in URL:

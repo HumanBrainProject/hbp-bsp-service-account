@@ -120,7 +120,7 @@ def update_job_status_and_quota(user, hpc=None, project=None, job_id=None):
     # if hpc is specified select all projects of that hpc and all jobs of these projects
     if hpc:
         projects = Project.objects.filter(hpc=hpc)
-        jobs = Job.objects.filter(owner=user, project=projects)
+        jobs = Job.objects.filter(owner=user, project__in=projects)
     # if project is specified select all jobs for that project
     elif project and not job_id:
         jobs = Job.objects.filter(owner=user, project=project)

@@ -110,8 +110,11 @@ def submit(job, headers, inputs=[]):
         # before we have uploaded data
         job['haveClientStageIn'] = 'true'
 
+    #print('Submitting job to %s' % api.JOBS_URL)
     r = requests.post(url=api.JOBS_URL, data=json.dumps(job), headers=my_headers, auth=api.get_credential(), verify=False)
-        
+    #print(r.status_code, r.content, sep='\n')
+
+
     if r.status_code == 201:
         job_url = r.headers['Location']
         data['job_id'] = get_job_id(job_url)
@@ -124,9 +127,11 @@ def submit(job, headers, inputs=[]):
                 upload(working_directory + "/files", i, headers)
         invoke_action(job_url, "start", headers)
        
-        r = requests.get(url=job_url, auth=api.get_credential(), verify=False)
-             
+        headers_2 = {"Accept": "application/json"}
+        r = requests.get(url=job_url, headers=headers_2, auth=api.get_credential(), verify=False)
+        
         if r.status_code == 200:
+            print(r.content)
             json_job = r.json()
             data.update({
                 'stage': json_job['status'],

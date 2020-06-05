@@ -22,6 +22,10 @@ import logging
 import json
 import os
 
+# Disable warning about https unicore (temporary solution)
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -112,7 +116,7 @@ class JobsViewExample(APIView):
                 
                 # run example on NSG
                 if hpc == 'NSG':
-                    job_file_example = open(BASE_DIR + '/job_examples/JonesEtAl2009_r31.zip', 'r')
+                    job_file_example = open(BASE_DIR + '/job_examples/JonesEtAl2009_r31.zip', 'rb')
                     payload = {
                         "tool": "NEURON77_TG",
                         "Runtime": 0.5
@@ -217,7 +221,7 @@ class JobsView(APIView):
                 # update and return all jobs submitted into the specified hpc
                 update_job_status_and_quota(user=user, hpc=hpc)
                 projects = Project.objects.filter(hpc=hpc)
-                jobs = Job.objects.filter(owner=user, project=projects)
+                jobs = Job.objects.filter(owner=user, project__in=projects)
                 serializer = JobSerializer(jobs, many=True)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
@@ -634,7 +638,7 @@ class QuotasView(APIView):
                     return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
             else:
                 projects = Project.objects.filter(hpc=hpc)
-                quotas = Quota.objects.filter(project=projects, user=user)
+                quotas = Quota.objects.filter(project__in=projects, user=user)
                 serializer = QuotaSerializer(quotas, many=True)
                 return Response(serializer.data, status=status.HTTP_200_OK)
         quotas = Quota.objects.filter(user=user)

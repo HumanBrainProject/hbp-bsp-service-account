@@ -8,6 +8,7 @@ import requests
 
 ROOT_URL = 'https://brissago.cscs.ch:8080/DAINT-CSCS'
 # URL = 'https://brissago.cscs.ch:8080/DAINT-CSCS/rest/core'
+#ROOT_URL = 'https://unicoregw.cscs.ch:8080/DAINT-CSCS'
 URL = ROOT_URL + '/rest/core'
 JOBS_URL = URL + '/jobs'
 SITES_URL = URL + '/sites'
@@ -25,12 +26,14 @@ def get_credential(user=None, password=None):
 
 
 def get_all_jobs(user_token=None):
+    print('[PIZDAINT]: get_all_jobs(user_token=%s) called.' % user_token)
     if user_token:
         return requests.get(url=JOBS_URL, headers=user_token, verify=False)
-    return requests.get(url=JOBS_URL, auth=get_credential())
+    return requests.get(url=JOBS_URL, auth=get_credential(), verify=False)
 
 
 def get_job_status(job_id, headers={}, user_token=None):
+    print('[PIZDAINT]: get_job_status(job_id=%s, headers=%s, user_token=%s) called.' % (job_id, headers, user_token))
     headers['Accept'] = 'application/json'
     if user_token:
         headers['Authorization'] = user_token
