@@ -73,6 +73,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_DIR = os.path.dirname(os.path.join(BASE_DIR, 'media'))
 
 HBP_MY_USER_URL = 'https://services.humanbrainproject.eu/idm/v1/api/user/me'
+EBRAINS_MY_USER_URL = 'https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect/userinfo' 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/

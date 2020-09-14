@@ -132,6 +132,8 @@ def submit_job(user, project, request, headers):
 def unicore_pizdaint(request, project_name=None):
 
     # check if user exists
+    print(request)
+    pprint.pprint(request.META)
     user = get_user(request)
     if not isinstance(user, User):
         return HttpResponseForbidden(user)

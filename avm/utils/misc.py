@@ -1,7 +1,7 @@
 #from hbp_app_python_auth.auth import get_auth_header
 #from ctools import manage_auth
 
-from service_account.settings import DEFAULT_PROJECT, HBP_MY_USER_URL, DUMP_JOB_PATH
+from service_account.settings import DEFAULT_PROJECT, HBP_MY_USER_URL, EBRAINS_MY_USER_URL, DUMP_JOB_PATH
 
 from avm.models import *
 from avm.serializers import UserSerializer, JobSerializer
@@ -38,6 +38,21 @@ def get_user(request):
 
     # Getting user's info from HBP_COLLAB
     r = requests.get(url=user_url, headers=headers)
+
+    if r.status_code == 401:
+        user_url = EBRAINS_MY_USER_URL
+        r = requests.get(url=user_url, headers=headers)
+        if r.status_code == 200:
+            user_id = r.json()['mitreid-sub']
+            
+            try:
+                user = User.objects.get(id=user_id)
+                return user
+            except User.DoesNotExist:
+                logger.debug('get_user(): UserID %s not found !' % user_id)
+                return None
+        logger.debug('get_user(): Can\'t fetch UserID from Ebrains!')
+        return None
 
     # This code may not work
     #if r.status_code != 200:
