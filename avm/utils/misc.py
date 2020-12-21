@@ -13,6 +13,7 @@ import requests
 import json
 import logging
 import os
+import pprint
 
 
 logging.basicConfig()
@@ -38,11 +39,11 @@ def get_user(request):
 
     # Getting user's info from HBP_COLLAB
     r = requests.get(url=user_url, headers=headers)
-
     if r.status_code == 401:
         user_url = EBRAINS_MY_USER_URL
         r = requests.get(url=user_url, headers=headers)
         if r.status_code == 200:
+            pprint.pprint(r.json())
             user_id = r.json()['mitreid-sub']
             
             try:
