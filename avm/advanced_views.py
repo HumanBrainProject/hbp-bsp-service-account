@@ -179,15 +179,12 @@ def unicore_pizdaint(request, project_name=None):
 
         elif request.method == 'POST':
             json_data = request.POST
-            print(json.dumps(json_data, indent=4))
 
         if not json_data:
             try:
                 json_data = json.loads(request.body)
-                print(json_data)
             except ValueError:
                 str_data = request.body
-                print(str_data)
 
         r = pizdaint(method=request.method, append_url=URL, headers=headers, data=str_data, json=json_data)
         #print(request.method, r.status_code, r.content, sep='\n')        
