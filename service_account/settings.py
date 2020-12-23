@@ -31,6 +31,8 @@ else:
 PIZDAINT_USER = pizdaint_key.USER
 PIZDAINT_PASSWORD = pizdaint_key.PASSWORD
 
+PIZDAINT_PROJECT = 'ich002'
+
 JOB_SECURITY_FILE_CHECK = ['opt_neuron.py', 'ipyparallel.sbatch']
 
 

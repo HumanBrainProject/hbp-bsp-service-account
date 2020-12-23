@@ -16,6 +16,7 @@ from pizdaint.utils.params import check_payload as check_pizdaint_value
 from avm.utils.misc import * 
 from avm.utils.job_security_check import check_job
 from service_account.settings import DEFAULT_PROJECT as PROJECT, ENABLED_HPC as HPC, BASE_DIR, DOWNLOAD_DIR
+from service_account.settings import PIZDAINT_PROJECT
 from avm.permissions import IsInGroups, IsNotBanned
 
 import logging
@@ -132,7 +133,7 @@ class JobsViewExample(APIView):
                     pizdaint_job_example = {
                         "Executable": "/bin/date",
                         "Resources": {
-                            "Project": "ich011",
+                            "Project": PIZDAINT_PROJECT,
                             "NodeConstraints": "mc",
                             "Runtime": "60"
                         }
@@ -360,7 +361,7 @@ class JobsView(APIView):
             job_description = {
                 "Executable": payload['command'],
                 "Resources": {
-                    "Project": "ich011",
+                    "Project": PIZDAINT_PROJECT,
                     "Nodes": payload['node_number'],
                     "CPUsPerNode": payload['core_number'],
                     "Runtime": str(runtime / 60) + 'm',  # runtime / 60 is right due to the previous runtime convertions

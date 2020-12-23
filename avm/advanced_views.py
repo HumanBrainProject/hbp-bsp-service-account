@@ -11,6 +11,7 @@ from pizdaint.utils.api import ROOT_URL as ORIGINAL_URL
 from avm.utils.misc import get_user, update_job_status_and_quota, dump_job
 from service_account.settings import ENABLED_HPC as HPC
 from service_account.settings import DEFAULT_PROJECT as PROJECT
+from service_account.settings import PIZDAINT_PROJECT 
 
 import requests
 import json
@@ -98,7 +99,7 @@ def submit_job(user, project, request, headers):
     else:
         payload.update({'Tags': ['userid' + user.id]})
 
-    print(payload)
+    payload['Resources'].update({'Project': PIZDAINT_PROJECT})
     # submit job
     r = pizdaint(method=request.method, append_url='/rest/core/jobs', headers=headers, json=payload)
     if r.status_code == 201:
@@ -132,8 +133,6 @@ def submit_job(user, project, request, headers):
 def unicore_pizdaint(request, project_name=None):
 
     # check if user exists
-    print(request)
-    pprint.pprint(request.META)
     user = get_user(request)
     if not isinstance(user, User):
         return HttpResponseForbidden(user)
@@ -180,12 +179,15 @@ def unicore_pizdaint(request, project_name=None):
 
         elif request.method == 'POST':
             json_data = request.POST
+            print(json.dumps(json_data, indent=4))
 
         if not json_data:
             try:
                 json_data = json.loads(request.body)
+                print(json_data)
             except ValueError:
                 str_data = request.body
+                print(str_data)
 
         r = pizdaint(method=request.method, append_url=URL, headers=headers, data=str_data, json=json_data)
         #print(request.method, r.status_code, r.content, sep='\n')        
