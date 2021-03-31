@@ -33,19 +33,20 @@ class IsInGroups(permissions.BasePermission):
     def has_permission(self, request, view):
         """ Return true if user can access the api. """
         user = get_user(request)
-        user_groups = user.groups.split(',')
-        if user_groups == '':
-            return False
-        group = request.path.split('/')[2:-1]
-        if len(group) < 2:
-            return True
-        elif len(group) >= 2:
-            try:
-                project = Project.objects.get(hpc=group[0].upper(), name=group[1])
-                if str(project.id) in user_groups:
-                    return True
-            except Project.DoesNotExist:
-                return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
+        if user:
+            user_groups = user.groups.split(',')
+            if user_groups == '':
+                return False
+            group = request.path.split('/')[2:-1]
+            if len(group) < 2:
+                return True
+            elif len(group) >= 2:
+                try:
+                    project = Project.objects.get(hpc=group[0].upper(), name=group[1])
+                    if str(project.id) in user_groups:
+                        return True
+                except Project.DoesNotExist:
+                    return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
         return False
 
 

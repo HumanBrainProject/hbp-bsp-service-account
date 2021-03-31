@@ -364,10 +364,12 @@ class JobsView(APIView):
                     "Project": PIZDAINT_PROJECT,
                     "Nodes": payload['node_number'],
                     "CPUsPerNode": payload['core_number'],
-                    "Runtime": str(runtime / 60) + 'm',  # runtime / 60 is right due to the previous runtime convertions
+                    "Runtime": str(int(runtime / 60)) + 'm',  # runtime / 60 is right due to the previous runtime convertions
                     "NodeConstraints": "mc",
                 },
             }
+            print('=============== JOB DESCRIPTION ======================')
+            print(job_description)
 
             data, status_code = pizdaint.submit(job=job_description, headers={}, inputs=inputs)
 
@@ -385,8 +387,12 @@ class JobsView(APIView):
             'end_date': None
         })
 
+        print('========== JOB ==============')
+        print(data)
+
         # serializer and save the job if everything is ok
         serializer = JobSerializer(data=data)
+        print(serializer)
         if serializer.is_valid():
             job = serializer.save()
             dump_job(user_id=user.id, hpc_name=hpc.lower(), job_id=job.id, job_description=json.dumps(job_description), job_file_name=job_file_name, job_file_content=job_file_content)
@@ -522,18 +528,8 @@ class FilesView(APIView):
                         return Response(data=file_list, status=status_code)
                     else:
                         
-                        #if not os.path.exists(os.path.join(DOWNLOAD_DIR, user.id)):
-                        #    os.mkdir(os.path.join(DOWNLOAD_DIR, user.id))
-                        #download_path = os.path.join(DOWNLOAD_DIR, user.id)
-                        #if fileid in os.listdir(download_path):
-                        #    print('removing %s... ' % fileid, end='')
-                        #    os.remove(os.path.join(download_path, fileid))
-                        #    print('OK')
-
                         outfile, status_code = pizdaint.download_job_file(job_id=job_id, file_id=fileid)
                         if status_code == 200:
-                        #    with open(os.path.join(download_path, fileid), 'wb') as fd:
-                        #        fd.write(outfile)
                             job_output = download_job(user.id, fileid, outfile)  
 
                         return FileResponse(open(job_output, 'rb'), status=status_code, content_type='application/octet-stream')
@@ -542,7 +538,7 @@ class FilesView(APIView):
                 print('Job not found')
                 return Response('Job not found!', status=status.HTTP_404_NOT_FOUND)
         except Project.DoesNotExist:
-            print('Porject not found')
+            print('Project not found')
             return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
 
 

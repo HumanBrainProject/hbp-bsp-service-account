@@ -43,9 +43,7 @@ def get_user(request):
         user_url = EBRAINS_MY_USER_URL
         r = requests.get(url=user_url, headers=headers)
         if r.status_code == 200:
-            pprint.pprint(r.json())
             user_id = r.json()['mitreid-sub']
-            
             try:
                 user = User.objects.get(id=user_id)
                 return user
