@@ -1,5 +1,5 @@
-from utils.params import *
-from utils import api
+from pizdaint.utils.params import *
+from pizdaint.utils import api
 from datetime import timedelta
 from bs4 import BeautifulSoup
 
@@ -13,8 +13,13 @@ def get_job_id(job_url):
 
 
 def get_job_status(job, headers={}, user_token=None):
-    log = ''
     r = api.get_job_status(job_id=job.job_id.lower(), headers=headers, user_token=user_token)
+    data = extract_job_data(job, r)
+    return data, r.status_code
+
+
+def extract_job_data(job, r):
+    log = ''
     data = r.content
     
     if r.status_code == 200:
@@ -50,7 +55,7 @@ def get_job_status(job, headers={}, user_token=None):
         if end_date:
             data.update({'end_date': str(end_date)})
 
-    return data, r.status_code
+    return data
 
 
 def get_properties(resource, headers={}):
@@ -105,8 +110,11 @@ def submit(job, headers, inputs=[]):
         # before we have uploaded data
         job['haveClientStageIn'] = 'true'
 
+    #print('Submitting job to %s' % api.JOBS_URL)
     r = requests.post(url=api.JOBS_URL, data=json.dumps(job), headers=my_headers, auth=api.get_credential(), verify=False)
-        
+    #print(r.status_code, r.content, sep='\n')
+
+
     if r.status_code == 201:
         job_url = r.headers['Location']
         data['job_id'] = get_job_id(job_url)
@@ -119,9 +127,11 @@ def submit(job, headers, inputs=[]):
                 upload(working_directory + "/files", i, headers)
         invoke_action(job_url, "start", headers)
        
-        r = requests.get(url=job_url, auth=api.get_credential(), verify=False)
-         
+        headers_2 = {"Accept": "application/json"}
+        r = requests.get(url=job_url, headers=headers_2, auth=api.get_credential(), verify=False)
+        
         if r.status_code == 200:
+            print(r.content)
             json_job = r.json()
             data.update({
                 'stage': json_job['status'],
@@ -151,7 +161,7 @@ def get_job_files_list(job_id, headers={}):
     data = []
     job_id = job_id.lower()
     r = api.get_job_file_list(job_id=job_id.lower(), headers=headers)
-    print r.status_code, r.content
+    
     if r.status_code == 200:
         soup = BeautifulSoup(r.content)
         file_list = soup.findAll("ul")[0].findAll("li")
@@ -165,3 +175,21 @@ def get_job_files_list(job_id, headers={}):
 def download_job_file(job_id, file_id=None, headers={}):
     r = api.download_job_file(job_id=job_id.lower(), file_id=file_id, headers=headers)
     return r.content, r.status_code
+
+
+def advance_endpoint(method, headers, url=None, append_url=None, data=None, json=None):
+    new_headers = headers.copy()
+    if append_url:
+        URL = api.ROOT_URL + append_url
+    elif url:
+        URL = url
+    if method == 'GET':
+        r = requests.get(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
+    elif method == 'POST':
+        r = requests.post(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
+    elif method == 'PUT':
+        r = requests.put(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
+    elif method == 'DELETE':
+        r = requests.delete(url=URL, headers=new_headers, data=data, json=json, auth=api.get_credential(), verify=False)
+
+    return r

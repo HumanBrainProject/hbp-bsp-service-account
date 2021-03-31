@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-from module.path import KEYS_PATH, DUMP_JOB_PATH 
+from service_account.module.path import KEYS_PATH, DUMP_JOB_PATH, DOWNLOAD_DIR 
 
 import sys
 sys.path.append(KEYS_PATH)
@@ -30,6 +30,10 @@ else:
 
 PIZDAINT_USER = pizdaint_key.USER
 PIZDAINT_PASSWORD = pizdaint_key.PASSWORD
+
+PIZDAINT_PROJECT = 'ich002'
+
+JOB_SECURITY_FILE_CHECK = ['opt_neuron.py', 'ipyparallel.sbatch']
 
 
 import os
@@ -71,6 +75,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_DIR = os.path.dirname(os.path.join(BASE_DIR, 'media'))
 
 HBP_MY_USER_URL = 'https://services.humanbrainproject.eu/idm/v1/api/user/me'
+EBRAINS_MY_USER_URL = 'https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect/userinfo' 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -83,7 +88,7 @@ DEBUG = False
 
 # NETWORK SETTINGS: set your ip/domain here.
 ALLOWED_HOSTS = [
-    '*',
+    'bspsa.cineca.it',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True

@@ -1,7 +1,7 @@
-from hbp_app_python_auth.auth import get_auth_header
-from ctools import manage_auth
+#from hbp_app_python_auth.auth import get_auth_header
+#from ctools import manage_auth
 
-from service_account.settings import DEFAULT_PROJECT, HBP_MY_USER_URL, DUMP_JOB_PATH
+from service_account.settings import DEFAULT_PROJECT, HBP_MY_USER_URL, EBRAINS_MY_USER_URL, DUMP_JOB_PATH
 
 from avm.models import *
 from avm.serializers import UserSerializer, JobSerializer
@@ -13,6 +13,7 @@ import requests
 import json
 import logging
 import os
+import pprint
 
 
 logging.basicConfig()
@@ -38,12 +39,26 @@ def get_user(request):
 
     # Getting user's info from HBP_COLLAB
     r = requests.get(url=user_url, headers=headers)
+    if r.status_code == 401:
+        user_url = EBRAINS_MY_USER_URL
+        r = requests.get(url=user_url, headers=headers)
+        if r.status_code == 200:
+            user_id = r.json()['mitreid-sub']
+            try:
+                user = User.objects.get(id=user_id)
+                return user
+            except User.DoesNotExist:
+                logger.debug('get_user(): UserID %s not found !' % user_id)
+                return None
+        logger.debug('get_user(): Can\'t fetch UserID from Ebrains!')
+        return None
 
-    if r.status_code != 200:
-        logger.debug("get_user(): User's HBP Token not valid... Try to renew it.")
-        manage_auth.Token.renewToken(request)
-        headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
-        r = request.get(url=user_url, headers=headers)
+    # This code may not work
+    #if r.status_code != 200:
+    #    logger.debug("get_user(): User's HBP Token not valid... Try to renew it.")
+    #    manage_auth.Token.renewToken(request)
+    #    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
+    #    r = request.get(url=user_url, headers=headers)
 
     j = json.loads(r.content)
 
@@ -95,7 +110,7 @@ def get_user(request):
             add_default_quota_for_user(user)
         else:
             logger.debug('get_user(): Errors in user creation.\nget_user(): ========= ERROR: =========\nget_user():')  
-            print serializer.errors
+            print(serializer.errors)
             return serializer.errors
 
     return user
@@ -119,7 +134,7 @@ def update_job_status_and_quota(user, hpc=None, project=None, job_id=None):
     # if hpc is specified select all projects of that hpc and all jobs of these projects
     if hpc:
         projects = Project.objects.filter(hpc=hpc)
-        jobs = Job.objects.filter(owner=user, project=projects)
+        jobs = Job.objects.filter(owner=user, project__in=projects)
     # if project is specified select all jobs for that project
     elif project and not job_id:
         jobs = Job.objects.filter(owner=user, project=project)
@@ -163,7 +178,7 @@ def hpc_exists(hpc):
     return False
 
 
-def dump_job(user_id, hpc_name, job_id, job_description, job_file_name, job_file_content):
+def dump_job(user_id, hpc_name, job_id, job_description, job_file_name=None, job_file_content=None):
     os.chdir(DUMP_JOB_PATH)
     if not os.path.exists(user_id):
         os.mkdir(user_id)
@@ -178,10 +193,24 @@ def dump_job(user_id, hpc_name, job_id, job_description, job_file_name, job_file
     if job_file_name and job_file_content:
         with open(job_file_name, 'wb') as fd:
             fd.write(job_file_content)
-    with open('job_description.txt', 'w') as fd:
-        fd.write(job_description)
+        with open('job_description.txt', 'w') as fd:
+            fd.write(job_description)
 
-    print '====== JOB DUMP ======'
-    print 'UserId: ' + str(user_id) + ' JobId: ' + str(job_id)
+    print('====== JOB DUMP ======')
+    print('UserId: ' + str(user_id) + ' JobId: ' + str(job_id))
     return
-    
+   
+
+from service_account.settings import DOWNLOAD_DIR
+
+def download_job(user_id, file_id, file_content):
+    if not os.path.exists(os.path.join(DOWNLOAD_DIR, user_id)):
+        os.mkdir(os.path.join(DOWNLOAD_DIR, user_id))
+    download_path = os.path.join(DOWNLOAD_DIR, user_id)
+    if file_id in os.listdir(download_path):
+        print('removing %s... ' % file_id, end='')
+        os.remove(os.path.join(download_path, file_id))
+        print('OK')
+    with open(os.path.join(download_path, file_id), 'wb') as fd:
+        fd.write(file_content)
+    return os.path.join(download_path, file_id)

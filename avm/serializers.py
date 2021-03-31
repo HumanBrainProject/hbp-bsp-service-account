@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from models import *
+from avm.models import *
 
 
 class JobSerializer(serializers.ModelSerializer):
@@ -9,6 +9,12 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
+        fields = '__all__'
+
+
+class AdvancedJobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdvancedJob
         fields = '__all__'
 
 

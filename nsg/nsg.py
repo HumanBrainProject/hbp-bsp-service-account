@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ElTree
 import logging
 
-from utils.params import *
-from utils import api
+from nsg.utils.params import *
+from nsg.utils import api
 
 
 logger = logging.getLogger(__name__)
@@ -28,8 +28,16 @@ def submit_job(enduser, payload, infile):
     try:
         check_payload(payload)
         payload = transform_payload(payload)
-    except ValueError:
-        return 'Wrong value!', 400
+    except CoreError:
+        return 'Wrong core value!', 400
+    except NodeError:
+        return 'Wrong node value!', 400
+    except GenerationError:
+        return 'Wrong generation value!', 400
+    except MyRuntimeError:
+        return 'Wrong runtime value!', 400
+    except ToolError:
+        return 'Wrong tool value!', 400
 
     r = api.submit_job(payload=payload, infile=infile, eu=enduser['eu'], eu_mail=enduser['email'],
                        eu_institution=enduser['institution'], eu_country=enduser['country'])

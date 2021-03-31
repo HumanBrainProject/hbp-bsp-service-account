@@ -7,9 +7,9 @@ from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 
-from serializers import *
-from utils.misc import hpc_exists
-from permissions import IsAdmin
+from avm.serializers import *
+from avm.utils.misc import hpc_exists
+from avm.permissions import IsAdmin
 from service_account.settings import ENABLED_HPC as HPC
 
 
@@ -103,7 +103,7 @@ class ProjectsView(APIView):
                 hpc = hpc.upper()
                 if project_name:
                     try:
-			print hpc, project_name
+                        print(hpc, project_name)
                         project = Project.objects.get(hpc=hpc, name=project_name)
                         serializer = ProjectSerializer(project)
                         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -231,7 +231,7 @@ class QuotaUserView(APIView):
                         serializer = QuotaSerializer(quota)
                         return Response(serializer.data, status=status.HTTP_200_OK)
                     except Project.DoesNotExist:
-			return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
+                        return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
                     except Quota.DoesNotExist:
                         return Response('Quota not found!', status=status.HTTP_404_NOT_FOUND)
 

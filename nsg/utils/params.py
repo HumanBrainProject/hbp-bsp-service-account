@@ -2,6 +2,29 @@
 from nsg.utils.tool import get_tool_list
 
 
+class CoreError(ValueError):
+    def __init__(self):
+        pass
+
+class NodeError(ValueError):
+    def __init__(self):
+        pass
+
+class GenerationError(ValueError):
+    def __init__(self):
+        pass
+
+class MyRuntimeError(ValueError):
+    def __init__(self):
+        pass
+
+
+class ToolError(ValueError):
+    def __init__(self):
+        pass
+
+        
+        
 # Defining parameters
 TOOL = 'tool'
 N_CORES = 'core_number'
@@ -26,15 +49,15 @@ MAX_RUNTIME = 48
 def check_payload(payload):
     for k in payload.keys():
         if k == N_CORES and int(payload[k]) > MAX_CORES:
-            raise ValueError
+            raise CoreError
         if k == N_NODES and int(payload[k]) > MAX_NODES:
-            raise ValueError
+            raise NodeError
         if k == N_GENERATION and int(payload[k]) > MAX_GENERATION:
-            raise ValueError
+            raise GenerationError
         if k == RUNTIME and float(payload[k]) > MAX_RUNTIME:
-            raise ValueError
+            raise MyRuntimeError
         if k == TOOL and payload[k] not in get_tool_list():
-            raise ValueError
+            raise ToolError
     return True
 
 

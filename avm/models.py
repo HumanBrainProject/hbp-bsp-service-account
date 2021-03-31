@@ -39,7 +39,7 @@ class Project(models.Model):
         return super(Project, self).save(*args, **kwargs)
 
     def print_all(self):
-        print '{\n' \
+        print('{\n' \
             + '     id: "' + str(self.id) + '"\n' \
             + '     hpc: "' + str(self.hpc) + '"\n' \
             + '     init_time: "' + str(self.init_time) + '"\n' \
@@ -48,7 +48,7 @@ class Project(models.Model):
             + '     space_left: "' + str(self.space_left) + '"\n' \
             + '     user_time: "' + str(self.user_time) + '"\n' \
             + '     user_space: "' + str(self.user_space) + '"\n' \
-            + '}'
+            + '}')
 
 
 class User(models.Model):
@@ -67,7 +67,7 @@ class User(models.Model):
         return '<id:("' + str(self.id) + '"), username:("' + str(self.username) + '")>'
 
     def print_all(self):
-        print '{\n' \
+        print('{\n' \
             + '  id: "' + str(self.id) + '"\n' \
             + '  username: "' + str(self.username) + '"\n' \
             + '  email: "' + str(self.email) + '"\n' \
@@ -76,7 +76,7 @@ class User(models.Model):
             + '  is_admin: "' + str(self.is_admin) + '"\n' \
             + '  groups: "' + str(self.groups) + '"\n' \
             + '  banned_from: "' + str(self.banned_from) + '"\n' \
-            + '}'
+            + '}')
 
     def add_group(self, project_id):
         if not isinstance(project_id, str):
@@ -119,7 +119,7 @@ class User(models.Model):
             self.country = 'IT'
         if self.groups == '':
             for h in HPC:
-		project = Project.objects.get(hpc=h[0], name=DEFAULT_PROJECT[h[0]])
+                project = Project.objects.get(hpc=h[0], name=DEFAULT_PROJECT[h[0]])
                 self.groups += str(project.id) + ','
         return super(User, self).save(*args, **kwargs)
 
@@ -163,26 +163,36 @@ class Quota(models.Model):
         self.save()
 
 
+class AdvancedJob(models.Model):
+    job_id = models.CharField(max_length=100)
+    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    runtime = models.FloatField()
+
+    def __str__(self):
+        return '<owner(' + str(self.owner) + '), job_id(' + str(self.job_id) + ')>'
+
+
 class Job(models.Model):
     job_id = models.CharField(max_length=100)
     owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     project = models.ForeignKey(Project, on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=100, blank=True, default='')
-    init_date = models.DateTimeField()
+    init_date = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
     runtime = models.FloatField()
-    stage = models.CharField(max_length=20)
+    stage = models.CharField(max_length=20, blank=True)
     terminal_stage = models.BooleanField(default=False)
     failed = models.BooleanField(default=False)
+    is_advanced = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (('job_id', 'project'),)
 
     def __str__(self):
-        return '<owner(' + str(self.owner) + '), job_id(' + str(self.job_id) + '), project(' + str(self.project) + ')>'
+        return '<owner(' + str(self.owner) + '), job_id(' + str(self.job_id) + '), project(' + str(self.project) + '), is_advanced(' + str(self.is_advanced) + ')>'
 
     def print_all(self):
-        print '{\n' \
+        print('{\n' \
               + '  id: "' + str(self.id) + '"\n' \
               + '  job_id: "' + str(self.job_id) + '"\n' \
               + '  owner: "' + str(self.owner) + '"\n' \
@@ -193,4 +203,5 @@ class Job(models.Model):
               + '  stage: "' + str(self.stage) + '"\n' \
               + '  terminal_stage: "' + str(self.terminal_stage) + '"\n' \
               + '  failed: "' + str(self.failed) + '"\n' \
-              + '}'
+              + '  is_advanced: "' + str(self.is_advanced) + '"\n' \
+              + '}')
