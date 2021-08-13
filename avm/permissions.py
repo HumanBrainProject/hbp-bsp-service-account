@@ -8,6 +8,8 @@ from rest_framework import status
 from avm.utils.misc import get_user
 from avm.models import Project
 
+import requests
+
 
 class IsAdmin(permissions.BasePermission):
     """
@@ -24,6 +26,7 @@ class IsAdmin(permissions.BasePermission):
         return False
 
 
+import pprint
 class IsInGroups(permissions.BasePermission):
     """
     This custom permission allow users to access api based on groups
@@ -33,8 +36,18 @@ class IsInGroups(permissions.BasePermission):
     def has_permission(self, request, view):
         """ Return true if user can access the api. """
         user = get_user(request)
+
+        # get permission if you come from hhnb
+        if request.META['REQUEST_URI'] == '/jobs/pizdaint/hhnb_daint_cscs/':
+            r = requests.get('https://hbp-bsp-hhnb.cineca.it/hh-neuron-builder/status', stream=True)
+            if r.status_code == 200:
+                hhnb_ip, _ =  r.raw._connection.sock.getpeername()
+                if request.META['REMOTE_ADDR'] == hhnb_ip:
+                    return True
+        
         if user:
             user_groups = user.groups.split(',')
+            print(user_groups)
             if user_groups == '':
                 return False
             group = request.path.split('/')[2:-1]

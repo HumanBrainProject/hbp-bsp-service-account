@@ -256,7 +256,6 @@ class JobsView(APIView):
         # logger.debug('JobsView--->POST: Called.')
 
         user = get_user(request)
-
         # check if user is not anonymous
         if not isinstance(user, User):
             # logger.warning('JobsView--->POST: User not recognized.\n' +
@@ -265,7 +264,6 @@ class JobsView(APIView):
             return Response(user, status=status.HTTP_403_FORBIDDEN)
 
         hpc = hpc.upper()
-
         # if project is not set then submit on the default one of the specified hpc
         if not project_name:
             project_name = PROJECT[hpc]
@@ -274,14 +272,25 @@ class JobsView(APIView):
             project = Project.objects.get(name=project_name, hpc=hpc)
         except Project.DoesNotExist:
             # logger.warning('JobsView--->POST: Project not found.')
+            print('JobsView--->POST: Project not found.')
             return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
         # logger.info('JobsView--->POST: Project set: ' + str(project) + '.')
+        print('JobsView--->POST: Project set: ' + str(project) + '.')
 
         # checking for user quota
         try:
             quota = Quota.objects.get(user=user, project=project)
         except Quota.DoesNotExist:
+            if project_name == 'hhnb_daint_cscs':
+                hhnb_quota = Quota(user=user, project=project)
+                hhnb_quota.save()
+                print(hhnb_quota)
+                serializer = QuotaSerializer(data=hhnb_quota)
+                print(serializer)
+                if serializer.is_valid():
+                    serializer.save()
             # logger.warning('JobsView--->POST: User ' + str(user) + ' not have quota.')
+            print('JobsView--->POST: User ' + str(user) + ' not have quota.')
             return Response('User has not quota!', status=status.HTTP_401_UNAUTHORIZED)
 
         # =================== PAYLOAD FORM = {"key": "value"} - doesn't work with single quotes =======================
@@ -291,6 +300,7 @@ class JobsView(APIView):
             payload = json.loads(raw_payload)
         except KeyError:
             # logger.info('JobsView--->POST: Payload not found!')
+            print('JobsView--->POST: Payload not found!')
             return Response('Request incomplete. Parameters missing!', status=status.HTTP_400_BAD_REQUEST)
 
         try:

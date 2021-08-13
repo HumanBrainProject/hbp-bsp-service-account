@@ -39,19 +39,24 @@ def get_user(request):
 
     # Getting user's info from HBP_COLLAB
     r = requests.get(url=user_url, headers=headers)
+    
     if r.status_code == 401:
         user_url = EBRAINS_MY_USER_URL
         r = requests.get(url=user_url, headers=headers)
-        if r.status_code == 200:
-            user_id = r.json()['mitreid-sub']
-            try:
-                user = User.objects.get(id=user_id)
-                return user
-            except User.DoesNotExist:
-                logger.debug('get_user(): UserID %s not found !' % user_id)
-                return None
-        logger.debug('get_user(): Can\'t fetch UserID from Ebrains!')
-        return None
+        if r.status_code != 200:
+            logger.debug('get_user(): UserID %s not found !' % user_id)
+            logger.debug('get_user(): Can\'t fetch UserID from Ebrains!')
+            return None
+    
+    try:
+        user_id = r.json()['mitreid-sub']
+    except KeyError:
+        user_id = r.json()['id']
+    try:
+        user = User.objects.get(id=user_id)
+        return user
+    except User.DoesNotExist:
+        pass
 
     # This code may not work
     #if r.status_code != 200:
