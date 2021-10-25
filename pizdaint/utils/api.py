@@ -22,6 +22,7 @@ STORAGEFACTORIES_URL = URL + '/storagefactories'
 def get_credential(user=None, password=None):
     if user and password:
         return HTTPBasicAuth(user, password)
+    print(USER, PASSWORD)
     return HTTPBasicAuth(USER, PASSWORD)
 
 

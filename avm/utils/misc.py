@@ -38,16 +38,23 @@ def get_user(request):
     headers = {'Authorization': request.META['HTTP_AUTHORIZATION']}
 
     # Getting user's info from HBP_COLLAB
-    r = requests.get(url=user_url, headers=headers)
+    #r = requests.get(url=user_url, headers=headers)
+    #
+
+    #if r.status_code == 401:
+    #    user_url = EBRAINS_MY_USER_URL
+    #    r = requests.get(url=user_url, headers=headers)
+    #    if r.status_code != 200:
+    #        logger.debug('get_user(): UserID %s not found !' % user_id)
+    #        logger.debug('get_user(): Can\'t fetch UserID from Ebrains!')
+    #        return None
     
-    if r.status_code == 401:
-        user_url = EBRAINS_MY_USER_URL
-        r = requests.get(url=user_url, headers=headers)
-        if r.status_code != 200:
-            logger.debug('get_user(): UserID %s not found !' % user_id)
-            logger.debug('get_user(): Can\'t fetch UserID from Ebrains!')
-            return None
-    
+    r = requests.get(url=EBRAINS_MY_USER_URL, headers=headers)
+    if r.status_code != 200:
+        logger.debug('get_user(): UserID %s not found !' % user_id)
+        logger.debug('get_user(): Can\'t fetch UserID from Ebrains!')
+        return None
+
     try:
         user_id = r.json()['mitreid-sub']
     except KeyError:

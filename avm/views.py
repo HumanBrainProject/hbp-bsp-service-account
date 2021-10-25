@@ -382,6 +382,7 @@ class JobsView(APIView):
             print(job_description)
 
             data, status_code = pizdaint.submit(job=job_description, headers={}, inputs=inputs)
+            print(data, status_code)
 
             # restore job's runtime if submit goes wrong
             if status_code != 201 and status_code != 200:

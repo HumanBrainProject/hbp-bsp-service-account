@@ -45,9 +45,9 @@ def submit_job(user, project, request, headers):
             payload = request.body
     
     # force job to be submitted on the Service Account's project
-    payload['Resources'].update({u'Project': u'ich011'})
+    #payload['Resources'].update({u'Project': u'ich011'})
     
-    # check if user has enough quota
+    check if user has enough quota
     try:
         runtime = payload['Resources']['Runtime'] 
     except ValueError:
@@ -100,6 +100,10 @@ def submit_job(user, project, request, headers):
         payload.update({'Tags': ['userid' + user.id]})
 
     payload['Resources'].update({'Project': PIZDAINT_PROJECT})
+    # removing CPUs from Resources
+    if 'CPUs' in payload['Resources']:
+        payload['Resources'].pop('CPUs')
+    
     # submit job
     r = pizdaint(method=request.method, append_url='/rest/core/jobs', headers=headers, json=payload)
     if r.status_code == 201:
