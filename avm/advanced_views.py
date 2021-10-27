@@ -47,7 +47,7 @@ def submit_job(user, project, request, headers):
     # force job to be submitted on the Service Account's project
     #payload['Resources'].update({u'Project': u'ich011'})
     
-    check if user has enough quota
+    #check if user has enough quota
     try:
         runtime = payload['Resources']['Runtime'] 
     except ValueError:
