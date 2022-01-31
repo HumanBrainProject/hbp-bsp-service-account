@@ -378,6 +378,10 @@ class JobsView(APIView):
                     "NodeConstraints": "mc",
                 },
             }
+            if 'expiration_time' in payload:
+                job_description.update({'terminationTime': payload['expiration_time']})
+
+
             print('=============== JOB DESCRIPTION ======================')
             print(job_description)
 
@@ -543,7 +547,8 @@ class FilesView(APIView):
                         if status_code == 200:
                             job_output = download_job(user.id, fileid, outfile)  
 
-                        return FileResponse(open(job_output, 'rb'), status=status_code, content_type='application/octet-stream')
+                            return FileResponse(open(job_output, 'rb'), status=status_code, content_type='application/octet-stream')
+                        return Response(outfile, status=status_code)
 
             except Job.DoesNotExist:
                 print('Job not found')

@@ -110,10 +110,7 @@ def submit(job, headers, inputs=[]):
         # before we have uploaded data
         job['haveClientStageIn'] = 'true'
     
-    print(api.get_credential())
-    #print('Submitting job to %s' % api.JOBS_URL)
     r = requests.post(url=api.JOBS_URL, data=json.dumps(job), headers=my_headers, auth=api.get_credential(), verify=False)
-    #print(r.status_code, r.content, sep='\n')
 
     if r.status_code == 201:
         job_url = r.headers['Location']
