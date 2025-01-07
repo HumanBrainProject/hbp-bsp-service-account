@@ -9,13 +9,13 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-from service_account.module.path import KEYS_PATH, DUMP_JOB_PATH, DOWNLOAD_DIR 
+from service_account.module.path import KEYS_PATH, DUMP_JOB_PATH, DOWNLOAD_DIR
 
 import sys
 sys.path.append(KEYS_PATH)
 
 
-import nsg_key, pizdaint_key, database_key, production_key 
+import nsg_key, pizdaint_key, jusuf_key, database_key, production_key
 
 UMBRELLA = True
 
@@ -32,6 +32,11 @@ PIZDAINT_USER = pizdaint_key.USER
 PIZDAINT_PASSWORD = pizdaint_key.PASSWORD
 
 PIZDAINT_PROJECT = 'ich002'
+
+JUSUF_USER = jusuf_key.USER
+JUSUF_PASSWORD = jusuf_key.PASSWORD
+
+JUSUF_PROJECT = 'icei-hbp-2020-0013'
 
 JOB_SECURITY_FILE_CHECK = ['opt_neuron.py', 'ipyparallel.sbatch']
 
@@ -75,7 +80,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_DIR = os.path.dirname(os.path.join(BASE_DIR, 'media'))
 
 HBP_MY_USER_URL = 'https://services.humanbrainproject.eu/idm/v1/api/user/me'
-EBRAINS_MY_USER_URL = 'https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect/userinfo' 
+EBRAINS_MY_USER_URL = 'https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect/userinfo'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -84,7 +89,7 @@ EBRAINS_MY_USER_URL = 'https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-co
 SECRET_KEY = production_key.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False 
+DEBUG = False
 
 # NETWORK SETTINGS: set your ip/domain here.
 ALLOWED_HOSTS = [
