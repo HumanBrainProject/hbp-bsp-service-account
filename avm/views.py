@@ -13,7 +13,7 @@ from avm.serializers import *
 from nsg import nsg
 from pizdaint import pizdaint
 from pizdaint.utils.params import check_payload as check_pizdaint_value
-from avm.utils.misc import * 
+from avm.utils.misc import *
 from avm.utils.job_security_check import check_job
 from service_account.settings import DEFAULT_PROJECT as PROJECT, ENABLED_HPC as HPC, BASE_DIR, DOWNLOAD_DIR
 from service_account.settings import PIZDAINT_PROJECT
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 class ServiceStatus(APIView):
     """
-    This API is used to check if the Service Account is up.  
+    This API is used to check if the Service Account is up.
     """
 
     renderer_classes = (JSONRenderer, )
@@ -48,7 +48,7 @@ class HPCAvailable(APIView):
     """
     This API is used to get a list of the all HPC systems available on the Service Account.
     """
-    
+
     renderer_classes = (JSONRenderer, )
 
     def get(self, request, hpc=None):
@@ -68,9 +68,9 @@ class JobSecurityCheck(APIView):
     This API is used to check if a job is valid to be run on the HPC.
     """
     render_classes = (JSONRenderer, )
-    
+
     def post(self, request, hpc):
-       
+
         user = get_user(request)
         if not isinstance(user, User):
             # ADD LOG
@@ -79,12 +79,12 @@ class JobSecurityCheck(APIView):
         hpc = hpc.upper()
         if not hpc_exists(hpc):
             return Response(data='HPC not found!', status=status.HTTP_404_NOT_FOUND)
-        
+
         job_file = request.FILES['file']
 
         if hpc == 'PIZDAINT':
             job_file_name = request.META['HTTP_CONTENT_DISPOSITION'].split('filename=')[1]
-            
+
         if check_job(user=user, job_file=job_file):
             print('Job can be submitted')
             return Response(data='You can submit this job !', status=status.HTTP_200_OK)
@@ -93,7 +93,7 @@ class JobSecurityCheck(APIView):
             return Response(data='Job not allowed to be submitted', status=status.HTTP_401_UNAUTHORIZED)
 
 
-class JobsViewExample(APIView): 
+class JobsViewExample(APIView):
     """
     This API is used by the HPC-Monitor webapp to submit an example job to the relative HPC.
     """
@@ -103,18 +103,18 @@ class JobsViewExample(APIView):
     def get(self, request, hpc, project_name):
 
         logger.debug('JobsViewExample--->GET: Called.')
-        
+
         user = get_user(request)
         if not isinstance(user, User):
-            logger.warning('JobsViewExample--->GET: User not recognized.\n' + 
-                           ' =================== USER ERRORS =================\n' + user + 
+            logger.warning('JobsViewExample--->GET: User not recognized.\n' +
+                           ' =================== USER ERRORS =================\n' + user +
                            ' =================================================')
             return Response(user, status=status.HTTP_403_FORBIDDEN)
         hpc = hpc.upper()
         if hpc_exists(hpc):
             try:
                 project = Project.objects.get(name=project_name)
-                
+
                 # run example on NSG
                 if hpc == 'NSG':
                     job_file_example = open(BASE_DIR + '/job_examples/JonesEtAl2009_r31.zip', 'rb')
@@ -122,9 +122,9 @@ class JobsViewExample(APIView):
                         "tool": "NEURON77_TG",
                         "Runtime": 0.5
                     }
-                   
+
                     data, status_code = nsg.submit_job(enduser=get_nsg_enduser(user), payload=payload, infile=job_file_example)
-                    
+
                     if status_code != 201 and status_code != 200:
                         return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
@@ -138,8 +138,8 @@ class JobsViewExample(APIView):
                             "Runtime": "60"
                         }
                     }
-                    data, status_code = pizdaint.submit(job=pizdaint_job_example, headers={}) 
-                    
+                    data, status_code = pizdaint.submit(job=pizdaint_job_example, headers={})
+
                     if status_code != 201 and status_code != 200:
                         return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
@@ -155,7 +155,7 @@ class JobsViewExample(APIView):
                     job = serializer.save()
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                    
+
             except Project.DoesNotExist:
                 return Response('Project not found!', status=status.HTTP_404_NOT_FOUND)
 
@@ -278,20 +278,20 @@ class JobsView(APIView):
         print('JobsView--->POST: Project set: ' + str(project) + '.')
 
         # checking for user quota
-        try:
-            quota = Quota.objects.get(user=user, project=project)
-        except Quota.DoesNotExist:
-            if project_name == 'hhnb_daint_cscs':
-                hhnb_quota = Quota(user=user, project=project)
-                hhnb_quota.save()
-                print(hhnb_quota)
-                serializer = QuotaSerializer(data=hhnb_quota)
-                print(serializer)
-                if serializer.is_valid():
-                    serializer.save()
-            # logger.warning('JobsView--->POST: User ' + str(user) + ' not have quota.')
-            print('JobsView--->POST: User ' + str(user) + ' not have quota.')
-            return Response('User has not quota!', status=status.HTTP_401_UNAUTHORIZED)
+        # try:
+        #     quota = Quota.objects.get(user=user, project=project)
+        # except Quota.DoesNotExist:
+        #     if project_name == 'hhnb_daint_cscs':
+        #         hhnb_quota = Quota(user=user, project=project)
+        #         hhnb_quota.save()
+        #         print(hhnb_quota)
+        #         serializer = QuotaSerializer(data=hhnb_quota)
+        #         print(serializer)
+        #         if serializer.is_valid():
+        #             serializer.save()
+        #     # logger.warning('JobsView--->POST: User ' + str(user) + ' not have quota.')
+        #     print('JobsView--->POST: User ' + str(user) + ' not have quota.')
+        #     return Response('User has not quota!', status=status.HTTP_401_UNAUTHORIZED)
 
         # =================== PAYLOAD FORM = {"key": "value"} - doesn't work with single quotes =======================
         # payload must to be extract from request.META because with fileUploading it's not possible to get request.data
@@ -351,7 +351,7 @@ class JobsView(APIView):
         # submit on PIZDAINT
         elif hpc == 'PIZDAINT':
             inputs = []
-            
+
             try: # request.META['HTTP_CONTENT_DISPOSITION']:
                 job_file_name = request.META['HTTP_CONTENT_DISPOSITION'].split('filename=')[1]
                 job_input = {'To': job_file_name, 'Data': job_file.read()}
@@ -367,7 +367,7 @@ class JobsView(APIView):
                 check_pizdaint_value(payload)
             except ValueError:
                 return Response('Core number must be at least equal to 12 and node number at least equal to 1!', status=status.HTTP_400_BAD_REQUEST)
-            
+
             job_description = {
                 "Executable": payload['command'],
                 "Resources": {
@@ -527,13 +527,13 @@ class FilesView(APIView):
                     else:
                         if job.terminal_stage:
                             outfile, status_code = nsg.download_output_file(enduser=get_nsg_enduser(user), jobid=job_id, fileid=fileid)
-                        
+
                         else:
                             outfile, status_code = nsg.download_working_directory_file(enduser=get_nsg_enduser(user), jobid=job_id, filename=fileid)
-                        
+
                         if status_code == 200:
                             job_output = download_job(user.id, fileid, outfile)
-                        
+
                         return FileResponse(open(job_output, 'rb'), status=status_code, content_type='application/octet-stream')
 
                 elif job.project.hpc == 'PIZDAINT':
@@ -542,10 +542,10 @@ class FilesView(APIView):
                         file_list, status_code = pizdaint.get_job_files_list(job_id=job_id)
                         return Response(data=file_list, status=status_code)
                     else:
-                        
+
                         outfile, status_code = pizdaint.download_job_file(job_id=job_id, file_id=fileid)
                         if status_code == 200:
-                            job_output = download_job(user.id, fileid, outfile)  
+                            job_output = download_job(user.id, fileid, outfile)
 
                             return FileResponse(open(job_output, 'rb'), status=status_code, content_type='application/octet-stream')
                         return Response(outfile, status=status_code)
