@@ -319,19 +319,19 @@ class JobsView(APIView):
             return Response('Wrong runtime value', status=status.HTTP_400_BAD_REQUEST)
 
         # check if user has enough quota to run the job
-        try:
-            quota.sub(time=runtime)
-        except ValueError:
-            # check for jobs status of the selected project if user has not enough quota
-            update_job_status_and_quota(user=user, project=project)
-            # logger.info('Updating jobs for user ' + str(user) + '.')
+        # try:
+        #     quota.sub(time=runtime)
+        # except ValueError:
+        #     # check for jobs status of the selected project if user has not enough quota
+        #     update_job_status_and_quota(user=user, project=project)
+        #     # logger.info('Updating jobs for user ' + str(user) + '.')
 
-            # if quota is still not enough return a 'Quota not enough' message to user
-            try:
-                quota.sub(time=runtime)
-            except ValueError:
-                # logger.warning('User ' + str(user) + ' hasn't enough quota on this project ' + str(project) + ' to run the job.')
-                return Response(data='Quota not enough!', status=status.HTTP_401_UNAUTHORIZED)
+        #     # if quota is still not enough return a 'Quota not enough' message to user
+        #     try:
+        #         quota.sub(time=runtime)
+        #     except ValueError:
+        #         # logger.warning('User ' + str(user) + ' hasn't enough quota on this project ' + str(project) + ' to run the job.')
+        #         return Response(data='Quota not enough!', status=status.HTTP_401_UNAUTHORIZED)
 
         # check for job title parameters into payload
         try:
