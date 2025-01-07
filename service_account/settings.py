@@ -116,13 +116,15 @@ CORS_ORIGIN_WHITELIST = [
 # HPC SETTINGS: add/enable your hpc here. This field is directly linked to 'project.hpc' on 'avm/models.py'.
 ENABLED_HPC = [
     ('NSG', 'NeuronScienceGateway'),
-    ('PIZDAINT', 'PizDaint-CSCS')
+    ('PIZDAINT', 'PizDaint-CSCS'),
+    ('JUSUF', 'Jusuf-JSC')
 ]
 
 # PROJECT SETTINGS: add here witch project is enabled by default, one project per HPC
 DEFAULT_PROJECT = {
     'NSG': 'bsp_nsg_01',
-    'PIZDAINT': 'bsp_pizdaint_01'
+    'PIZDAINT': 'bsp_pizdaint_01',
+    'JUSUF': 'bsp_jusuf_01',
 }
 
 
